@@ -1,0 +1,12 @@
+D:\Work\Innostage\Logistic\Logistic.Core\bin\Debug\net6.0\Logistic.Core.deps.json
+D:\Work\Innostage\Logistic\Logistic.Core\bin\Debug\net6.0\Logistic.Core.dll
+D:\Work\Innostage\Logistic\Logistic.Core\bin\Debug\net6.0\Logistic.Core.pdb
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.csproj.AssemblyReference.cache
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.AssemblyInfoInputs.cache
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.AssemblyInfo.cs
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.csproj.CoreCompileInputs.cache
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.dll
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\refint\Logistic.Core.dll
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\Logistic.Core.pdb
+D:\Work\Innostage\Logistic\Logistic.Core\obj\Debug\net6.0\ref\Logistic.Core.dll
