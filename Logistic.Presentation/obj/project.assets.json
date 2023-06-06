@@ -512,21 +512,21 @@
           "bin/placeholder/Logistic.Business.dll": {}
         }
       },
-      "Logistic.Core/1.0.0": {
+      "Logistic.Domain/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "compile": {
-          "bin/placeholder/Logistic.Core.dll": {}
+          "bin/placeholder/Logistic.Domain.dll": {}
         },
         "runtime": {
-          "bin/placeholder/Logistic.Core.dll": {}
+          "bin/placeholder/Logistic.Domain.dll": {}
         }
       },
       "Logistic.Infrastructure/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
-          "Logistic.Core": "1.0.0",
+          "Logistic.Domain": "1.0.0",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.4"
         },
         "compile": {
@@ -1284,10 +1284,10 @@
       "path": "../Logistic.Business/Logistic.Business.csproj",
       "msbuildProject": "../Logistic.Business/Logistic.Business.csproj"
     },
-    "Logistic.Core/1.0.0": {
+    "Logistic.Domain/1.0.0": {
       "type": "project",
-      "path": "../Logistic.Core/Logistic.Core.csproj",
-      "msbuildProject": "../Logistic.Core/Logistic.Core.csproj"
+      "path": "../Logistic.Domain/Logistic.Domain.csproj",
+      "msbuildProject": "../Logistic.Domain/Logistic.Domain.csproj"
     },
     "Logistic.Infrastructure/1.0.0": {
       "type": "project",

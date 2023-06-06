@@ -13,5 +13,5 @@ D:\Work\Innostage\Logistic\Logistic.Infrastructure\obj\Debug\net6.0\refint\Logis
 D:\Work\Innostage\Logistic\Logistic.Infrastructure\obj\Debug\net6.0\Logistic.Infrastructure.pdb
 D:\Work\Innostage\Logistic\Logistic.Infrastructure\obj\Debug\net6.0\Logistic.Infrastructure.genruntimeconfig.cache
 D:\Work\Innostage\Logistic\Logistic.Infrastructure\obj\Debug\net6.0\ref\Logistic.Infrastructure.dll
-D:\Work\Innostage\Logistic\Logistic.Infrastructure\bin\Debug\net6.0\Logistic.Core.dll
-D:\Work\Innostage\Logistic\Logistic.Infrastructure\bin\Debug\net6.0\Logistic.Core.pdb
+D:\Work\Innostage\Logistic\Logistic.Infrastructure\bin\Debug\net6.0\Logistic.Domain.dll
+D:\Work\Innostage\Logistic\Logistic.Infrastructure\bin\Debug\net6.0\Logistic.Domain.pdb

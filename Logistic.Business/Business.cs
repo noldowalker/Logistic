@@ -17,18 +17,19 @@ public static class Business
     
     public static void AddBusinessGeneration(this IServiceCollection services)
     {
-        var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Logistic.Core");
+        var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Logistic.Domain");
         var autoGeneratableTypes = assembly
             .GetTypes()
             .Where(t => t.GetCustomAttributes(typeof(AutoGenerateAttribute), true).Any());
 
         foreach (var type in autoGeneratableTypes)
         {
+            var baseBusinessInterfaceType = typeof(IBaseBusinessService<>).MakeGenericType(type);
             var baseBusinessServiceType = typeof(BaseBusinessService<>).MakeGenericType(type);
-            var implementationType =
-                Assembly.GetExecutingAssembly().GetType($"{type.Namespace}.Services.{type.Name}Service");
+            /*var implementationType =
+                Assembly.GetExecutingAssembly().GetType($"{type.Namespace}.Services.{type.Name}Service");*/
 
-            services.AddScoped(baseBusinessServiceType, implementationType);
+            services.AddScoped(baseBusinessInterfaceType, baseBusinessServiceType);
         }
 
     }

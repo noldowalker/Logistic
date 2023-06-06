@@ -424,14 +424,14 @@
           "buildTransitive/net6.0/System.Text.Json.targets": {}
         }
       },
-      "Logistic.Core/1.0.0": {
+      "Logistic.Domain/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "compile": {
-          "bin/placeholder/Logistic.Core.dll": {}
+          "bin/placeholder/Logistic.Domain.dll": {}
         },
         "runtime": {
-          "bin/placeholder/Logistic.Core.dll": {}
+          "bin/placeholder/Logistic.Domain.dll": {}
         }
       }
     }
@@ -1077,15 +1077,15 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Logistic.Core/1.0.0": {
+    "Logistic.Domain/1.0.0": {
       "type": "project",
-      "path": "../Logistic.Core/Logistic.Core.csproj",
-      "msbuildProject": "../Logistic.Core/Logistic.Core.csproj"
+      "path": "../Logistic.Domain/Logistic.Domain.csproj",
+      "msbuildProject": "../Logistic.Domain/Logistic.Domain.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "Logistic.Core >= 1.0.0",
+      "Logistic.Domain >= 1.0.0",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.5",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 7.0.4"
     ]
@@ -1122,8 +1122,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj": {
-              "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj"
+            "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj": {
+              "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj"
             }
           }
         }

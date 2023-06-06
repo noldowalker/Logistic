@@ -4,14 +4,14 @@
     "D:\\Work\\Innostage\\Logistic\\Logistic.Infrastructure\\Logistic.Infrastructure.csproj": {}
   },
   "projects": {
-    "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj": {
+    "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj",
-        "projectName": "Logistic.Core",
-        "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj",
+        "projectUniqueName": "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj",
+        "projectName": "Logistic.Domain",
+        "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj",
         "packagesPath": "C:\\Users\\Manveru\\.nuget\\packages\\",
-        "outputPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\obj\\",
+        "outputPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -91,8 +91,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj": {
-                "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Core\\Logistic.Core.csproj"
+              "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj": {
+                "projectPath": "D:\\Work\\Innostage\\Logistic\\Logistic.Domain\\Logistic.Domain.csproj"
               }
             }
           }

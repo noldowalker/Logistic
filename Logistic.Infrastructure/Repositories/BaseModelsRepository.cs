@@ -47,9 +47,9 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
             _db.Set<T>().Remove(entity);
     }
 
-    public void Save()
+    public async Task SaveAsync()
     {
-        _db.SaveChanges();
+        await _db.SaveChangesAsync();
     }
     
     private bool disposed = false;

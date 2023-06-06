@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Logistic.Core\Logistic.Core.csproj" />
+      <ProjectReference Include="..\Logistic.Domain\Logistic.Domain.csproj" />
     </ItemGroup>
 
 </Project>

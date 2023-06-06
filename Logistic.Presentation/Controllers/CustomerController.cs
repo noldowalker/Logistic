@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Logistic.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 public class CustomerController : ControllerBase
 {
     private readonly ILogger<CustomerController> _logger;
@@ -31,10 +31,10 @@ public class CustomerController : ControllerBase
         }; 
     }
     
-    [HttpPost(Name = nameof(Create))]
-    public LogisticWebResponse Create(CreateCustomerForm form)
+    [HttpPost(nameof(Create))]
+    public async Task<LogisticWebResponse> Create(CreateCustomerForm form)
     {
-        var result = _customerService.RegisterNewCustomer(form.Name);
+        var result = await _customerService.RegisterNewCustomer(form.Name);
         
         if (result)
             return new LogisticWebResponse()
@@ -44,7 +44,24 @@ public class CustomerController : ControllerBase
         
         return new LogisticWebResponse()
         {
-            Error = "Ну удалось добавить пользователя"
+            Error = "Не удалось добавить пользователя"
+        }; 
+    }
+    
+    [HttpPost(nameof(ChangeCustomer))]
+    public LogisticWebResponse ChangeCustomer(ChangeCustomerForm form)
+    {
+        var result = _customerService.UpdateCurrentCustomer(form.Id, form.NewName, form.Version);
+        
+        if (result)
+            return new LogisticWebResponse()
+            {
+                Notification = "Имя пользователя успешно изменено"
+            };  
+        
+        return new LogisticWebResponse()
+        {
+            Error = "Не удалось изменить имя пользователя"
         }; 
     }
 }

@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logistic.Presentation", "Logistic.Presentation\Logistic.Presentation.csproj", "{A5D21263-6631-4756-9127-6C7D2D89DEFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logistic.Core", "Logistic.Core\Logistic.Core.csproj", "{3A209734-00DE-47C2-BDA0-B09F6F074858}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logistic.Domain", "Logistic.Domain\Logistic.Domain.csproj", "{3A209734-00DE-47C2-BDA0-B09F6F074858}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logistic.Infrastructure", "Logistic.Infrastructure\Logistic.Infrastructure.csproj", "{810AF7F9-19BE-4418-BE3D-AFC9DA638164}"
 EndProject

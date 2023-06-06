@@ -23,11 +23,11 @@ namespace Logistic.Migrations
 
             modelBuilder.Entity("Domain.Models.Address", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<long>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
 
                     b.Property<string>("FullAddress")
                         .IsRequired()
@@ -43,11 +43,11 @@ namespace Logistic.Migrations
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<long>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
 
                     b.Property<bool>("inactive")
                         .HasColumnType("boolean");
@@ -58,19 +58,19 @@ namespace Logistic.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("customers");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Domain.Models.DeliveryPoint", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<long>("id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
 
-                    b.Property<int>("Addressid")
-                        .HasColumnType("integer");
+                    b.Property<long>("Addressid")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()

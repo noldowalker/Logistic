@@ -29,10 +29,11 @@ public static class Infrastructure
         foreach (var type in autoGeneratableTypes)
         {
             var baseBusinessServiceType = typeof(BaseModelsRepository<>).MakeGenericType(type);
+            var baseBusinessInterfaceType = typeof(IBaseModelsRepository<>).MakeGenericType(type);
             var implementationType =
                 Assembly.GetExecutingAssembly().GetType($"{type.Namespace}.Services.{type.Name}Service");
 
-            services.AddScoped(baseBusinessServiceType, implementationType);
+            services.AddScoped(baseBusinessInterfaceType, baseBusinessServiceType);
         }
 
     }

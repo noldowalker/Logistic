@@ -1,8 +1,8 @@
 {
   "Version": 1,
-  "Hash": "VrCzCXOShfNq1pnnvFE+LVunJuUZHg/mWnN+mpxy30c=",
-  "Source": "Logistic.Web",
-  "BasePath": "_content/Logistic.Web",
+  "Hash": "rKJs67P1/2wimzbUlTLFHtCeo0fK5Oh6P1I/dBAn1TM=",
+  "Source": "Logistic.Presentation",
+  "BasePath": "_content/Logistic.Presentation",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],

@@ -178,14 +178,14 @@
         }
       },
       "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
-      "Logistic.Core/1.0.0": {
+      "Logistic.Domain/1.0.0": {
         "runtime": {
-          "Logistic.Core.dll": {}
+          "Logistic.Domain.dll": {}
         }
       },
       "Logistic.Infrastructure/1.0.0": {
         "dependencies": {
-          "Logistic.Core": "1.0.0",
+          "Logistic.Domain": "1.0.0",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.4"
         },
         "runtime": {
@@ -312,7 +312,7 @@
       "path": "system.runtime.compilerservices.unsafe/6.0.0",
       "hashPath": "system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
     },
-    "Logistic.Core/1.0.0": {
+    "Logistic.Domain/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
