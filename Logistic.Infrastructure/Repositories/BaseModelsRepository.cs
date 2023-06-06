@@ -26,7 +26,6 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     public T? Get(long id)
     {
-        //ToDo: поработать с ошибками
         return _db.Set<T>().Find(id);
     }
 

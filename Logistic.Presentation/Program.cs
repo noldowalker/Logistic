@@ -14,7 +14,7 @@ builder.Services.AddInfrastructureDependencies();
 builder.Services.AddInfrastructureGeneration();
 
 builder.Services.AddBusinessDependencies();
-// builder.Services.AddBusinessGeneration();
+builder.Services.AddBusinessGeneration();
 
 builder.Services.AddControllers();
 builder.Services.AddControllersGeneration();

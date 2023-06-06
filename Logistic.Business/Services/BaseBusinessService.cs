@@ -16,4 +16,9 @@ public class BaseBusinessService<T> : IBaseBusinessService<T> where T : BaseMode
     {
         return _repository.GetList().ToList();
     }
+    
+    public virtual T? Get(long id)
+    {
+        return _repository.Get(id);
+    }
 }
