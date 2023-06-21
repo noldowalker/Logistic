@@ -1,5 +1,6 @@
 using Logistic.Application.Services;
 using Logistic.Dto.Requests;
+using Logistic.Dto.Requests.Mappers;
 using Logistic.Dto.Responses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,25 +19,27 @@ public class CustomerController : ControllerBase
         _customerService = customerService;
     }
 
-    [HttpGet(Name = nameof(Get))]
+    [HttpGet()]
     public LogisticWebResponse Get()
     {
         var result = _customerService.GetListOfCustomers();
         
         return new LogisticWebResponse()
         {
-            Data = result?.ListOfModels,
+            Data = result?.ListOfModels?.Cast<object>().ToList() ?? new List<object>(),
             Notification = result?.Notification,
-            Error = result?.Error,
+            Errors = _customerService.ActionErrors,
         }; 
     }
     
-    [HttpPost(nameof(Create))]
-    public async Task<LogisticWebResponse> Create(CreateCustomerForm form)
+    [HttpPost()]
+    public async Task<LogisticWebResponse> Create(LogisticWebCreateOrUpdateRequest form)
     {
-        var result = await _customerService.RegisterNewCustomer(form.Name);
+        var customers = form.TryToCustomers();
+        await _customerService.RegisterNewCustomers(customers);
         
-        if (result)
+        // ToDo: переделать на BusinessServiceResult
+        if (!_customerService.ActionErrors.Any())
             return new LogisticWebResponse()
             {
                 Notification = "Пользователь успешно добавлен"
@@ -44,24 +47,22 @@ public class CustomerController : ControllerBase
         
         return new LogisticWebResponse()
         {
-            Error = "Не удалось добавить пользователя"
+            Errors = _customerService.ActionErrors
         }; 
     }
     
-    [HttpPost(nameof(ChangeCustomer))]
-    public LogisticWebResponse ChangeCustomer(ChangeCustomerForm form)
+    [HttpPost()]
+    public LogisticWebResponse Change(LogisticWebCreateOrUpdateRequest form)
     {
-        var result = _customerService.UpdateCurrentCustomer(form.Id, form.NewName, form.Version);
-        
-        if (result)
+        var customers = form.TryToCustomers();
+        var result = _customerService.UpdateCustomers(customers);
+        // ToDo: переделать на BusinessServiceResult
+        if (!_customerService.ActionErrors.Any())
             return new LogisticWebResponse()
             {
                 Notification = "Имя пользователя успешно изменено"
-            };  
-        
-        return new LogisticWebResponse()
-        {
-            Error = "Не удалось изменить имя пользователя"
-        }; 
+            };
+
+        return LogisticWebResponse.BadResult(_customerService.ActionErrors);
     }
 }
