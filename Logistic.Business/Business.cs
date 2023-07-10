@@ -2,7 +2,10 @@
 using Domain.Attributes;
 using Domain.Interfaces;
 using Domain.Models;
+using Logistic.Application.BusinessModels;
+using Logistic.Application.Mappers;
 using Logistic.Application.Services;
+using Logistic.Application.Validators;
 using Logistic.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,11 +13,6 @@ namespace Logistic.Application;
 
 public static class Business
 {
-    public static void AddBusinessDependencies(this IServiceCollection services)
-    {
-        services.AddScoped<CustomerService, CustomerService>();
-    }
-    
     public static void AddBusinessGeneration(this IServiceCollection services)
     {
         var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Logistic.Domain");
@@ -32,5 +30,22 @@ public static class Business
             services.AddScoped(baseBusinessInterfaceType, baseBusinessServiceType);
         }
 
+    }
+    
+    public static void AddBusinessDependencies(this IServiceCollection services)
+    {
+        services.AddScoped<CustomerService, CustomerService>();
+        AddMappers(services);
+        AddValidators(services);
+    }
+
+    private static void AddMappers(IServiceCollection services)
+    {
+        services.AddScoped<IDomainMappable<Customer,CustomerBusiness>, CustomerBusinessMapper>();
+    }
+
+    private static void AddValidators(IServiceCollection services)
+    {
+        services.AddScoped<IValidatable<CustomerBusiness>, CustomerBusinessValidator>();
     }
 }

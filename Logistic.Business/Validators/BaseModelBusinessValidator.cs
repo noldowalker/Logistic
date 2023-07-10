@@ -1,33 +1,35 @@
-﻿namespace Logistic.Application.BusinessModels.BaseModel;
+﻿using Logistic.Application.BusinessModels;
 
-public partial class BaseModelBusiness : IValidatable
+namespace Logistic.Application.Validators;
+
+public class BaseModelBusinessValidator<T> : IValidatable<T> where T : BaseModelBusiness
 {
     public List<string> ValidationErrors { get; set; }
 
-    public virtual void ValidateForCreate()
+    public virtual void ValidateForCreate(T entity)
     {
         ValidationErrors = new List<string>();
-        IdMustNotExists();
-        NotDeactivate();
+        IdMustNotExists(entity);
+        NotDeactivate(entity);
     }
 
-    public virtual void ValidateForUpdate()
+    public virtual void ValidateForUpdate(T entity)
     {
         ValidationErrors = new List<string>();
-        IdMustExists();
-        NotDeactivate();
+        IdMustExists(entity);
+        NotDeactivate(entity);
     }
 
-    public virtual void ValidateForDelete()
+    public virtual void ValidateForDelete(T entity)
     {
         ValidationErrors = new List<string>();
-        IdMustExists();
-        ExpectDeactivation();
+        IdMustExists(entity);
+        ExpectDeactivation(entity);
     }
 
-    private void IdMustExists()
+    private void IdMustExists(T entity)
     {
-        switch (id)
+        switch (entity.id)
         {
             case null:
                 ValidationErrors.Add("При редактировании сущности необходимо указать id");
@@ -38,21 +40,21 @@ public partial class BaseModelBusiness : IValidatable
         }
     }
     
-    private void IdMustNotExists()
+    private void IdMustNotExists(T entity)
     {
-        if (id != null)
+        if (entity.id != null)
             ValidationErrors.Add("При создании сущности недопустимо указывать id");
     }
 
-    private void NotDeactivate()
+    private void NotDeactivate(T entity)
     {
-        if(inactive == true)
+        if(entity.inactive == true)
             ValidationErrors.Add("При редактировании сущности недопустима ее деактивация, используйте для этого удаление");
     }
 
-    private void ExpectDeactivation()
+    private void ExpectDeactivation(T entity)
     {
-        if(inactive != true)
+        if(entity.inactive != true)
             ValidationErrors.Add("При деактивации допустимо только изменение поля активированности на false");
     }
 }

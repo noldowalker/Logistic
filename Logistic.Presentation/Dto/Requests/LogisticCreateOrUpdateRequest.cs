@@ -1,6 +1,8 @@
-﻿namespace Logistic.Dto.Requests;
+﻿using Logistic.Application.BusinessModels;
 
-public partial class LogisticWebCreateOrUpdateRequest
+namespace Logistic.Dto.Requests;
+
+public class LogisticWebRequestWithEntityList<T> where T : BaseModelBusiness
 {
-    public List<object> Data { get; set; }
+    public List<T> Data { get; set; }
 }

@@ -1,10 +1,12 @@
-﻿namespace Logistic.Application;
+﻿using Logistic.Application.BusinessModels;
 
-public interface IValidatable
+namespace Logistic.Application;
+
+public interface IValidatable<T> where T : BaseModelBusiness
 {
     public List<string> ValidationErrors { get; set; }
     
-    public void ValidateForCreate();
-    public void ValidateForUpdate();
-    public void ValidateForDelete();
+    public void ValidateForCreate(T entity);
+    public void ValidateForUpdate(T entity);
+    public void ValidateForDelete(T entity);
 }

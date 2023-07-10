@@ -1,8 +1,9 @@
 using Logistic.Application.Services;
 using Logistic.Dto.Requests;
-using Logistic.Dto.Requests.Mappers;
 using Logistic.Dto.Responses;
+using Logistic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using CustomerBusiness = Logistic.Application.BusinessModels.CustomerBusiness;
 
 namespace Logistic.Controllers;
 
@@ -13,29 +14,33 @@ public class CustomerController : ControllerBase
     private readonly ILogger<CustomerController> _logger;
     private CustomerService _customerService;
 
-    public CustomerController(ILogger<CustomerController> logger, CustomerService customerService)
+    public CustomerController(
+        ILogger<CustomerController> logger,
+        CustomerService customerService)
     {
         _logger = logger;
         _customerService = customerService;
     }
 
-    [HttpGet()]
-    public LogisticWebResponse Get()
+    [HttpGet]
+    public ObjectResult GetAllCustomers()
     {
         var result = _customerService.GetListOfCustomers();
-        
-        return new LogisticWebResponse()
+
+        var response = new LogisticWebResponse()
         {
             Data = result?.ListOfModels?.Cast<object>().ToList() ?? new List<object>(),
             Notification = result?.Notification,
             Errors = _customerService.ActionErrors,
-        }; 
+        };
+
+        return response.AsObjectResult();
     }
     
     [HttpPost()]
-    public async Task<LogisticWebResponse> Create(LogisticWebCreateOrUpdateRequest form)
+    public async Task<ObjectResult> Create(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
-        var customers = form.TryToCustomers();
+        var customers = form.Data;
         await _customerService.RegisterNewCustomers(customers);
         
         // ToDo: переделать на BusinessServiceResult
@@ -43,26 +48,26 @@ public class CustomerController : ControllerBase
             return new LogisticWebResponse()
             {
                 Notification = "Пользователь успешно добавлен"
-            };  
+            }.AsObjectResult();  
         
         return new LogisticWebResponse()
         {
             Errors = _customerService.ActionErrors
-        }; 
+        }.AsObjectResult(); 
     }
     
     [HttpPost()]
-    public LogisticWebResponse Change(LogisticWebCreateOrUpdateRequest form)
+    public ObjectResult Change(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
-        var customers = form.TryToCustomers();
+        var customers = form.Data;
         var result = _customerService.UpdateCustomers(customers);
-        // ToDo: переделать на BusinessServiceResult
+
         if (!_customerService.ActionErrors.Any())
             return new LogisticWebResponse()
             {
                 Notification = "Имя пользователя успешно изменено"
-            };
+            }.AsObjectResult();
 
-        return LogisticWebResponse.BadResult(_customerService.ActionErrors);
+        return LogisticWebResponse.BadResult(_customerService.ActionErrors).AsObjectResult();
     }
 }

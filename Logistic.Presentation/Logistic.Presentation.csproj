@@ -20,4 +20,8 @@
       <ProjectReference Include="..\Logistic.Infrastructure\Logistic.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Dto\Requests\Mappers" />
+    </ItemGroup>
+
 </Project>

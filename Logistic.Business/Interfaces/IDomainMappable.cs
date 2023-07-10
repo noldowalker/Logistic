@@ -1,8 +1,12 @@
 ﻿using Domain.Models;
+using Logistic.Application.BusinessModels;
 
 namespace Logistic.Application;
 
-public interface IDomainMappable<T> where T : BaseModel
+public interface IDomainMappable<TDomain, TBusiness> 
+    where TDomain : BaseModel 
+    where TBusiness : BaseModelBusiness
 {
-    public T MapToDomain();
+    public TDomain MapToDomain(TBusiness entity);
+    public TBusiness MapFromDomain(TDomain entity);
 }

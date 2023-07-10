@@ -16,6 +16,8 @@ builder.Services.AddInfrastructureGeneration();
 builder.Services.AddBusinessDependencies();
 builder.Services.AddBusinessGeneration();
 
+builder.Services.AddPresentationDependencies();
+
 builder.Services.AddControllers();
 builder.Services.AddControllersGeneration();
 builder.Services.AddEndpointsApiExplorer();
