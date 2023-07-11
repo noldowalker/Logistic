@@ -11,6 +11,7 @@ public static class Presentation
 {
     public static void AddPresentationDependencies(this IServiceCollection services)
     {
+        
     }
     
     public static void AddControllersGeneration(this IServiceCollection services)
