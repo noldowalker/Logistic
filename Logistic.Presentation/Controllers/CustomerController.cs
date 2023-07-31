@@ -12,7 +12,7 @@ namespace Logistic.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ILogger<CustomerController> _logger;
-    private CustomerService _customerService;
+    private readonly CustomerService _customerService;
 
     public CustomerController(
         ILogger<CustomerController> logger,
@@ -37,13 +37,12 @@ public class CustomerController : ControllerBase
         return response.AsObjectResult();
     }
     
-    [HttpPost()]
+    [HttpPost]
     public async Task<ObjectResult> Create(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
         var customers = form.Data;
         await _customerService.RegisterNewCustomers(customers);
         
-        // ToDo: переделать на BusinessServiceResult
         if (!_customerService.ActionErrors.Any())
             return new LogisticWebResponse()
             {
@@ -56,11 +55,11 @@ public class CustomerController : ControllerBase
         }.AsObjectResult(); 
     }
     
-    [HttpPost()]
-    public ObjectResult Change(LogisticWebRequestWithEntityList<CustomerBusiness> form)
+    [HttpPost]
+    public async Task<ObjectResult> Change(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
         var customers = form.Data;
-        var result = _customerService.UpdateCustomers(customers);
+        await _customerService.UpdateCustomers(customers);
 
         if (!_customerService.ActionErrors.Any())
             return new LogisticWebResponse()
