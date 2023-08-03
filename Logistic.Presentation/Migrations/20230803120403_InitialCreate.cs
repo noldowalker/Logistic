@@ -31,12 +31,18 @@ namespace Logistic.Migrations
                 {
                     id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Addressid = table.Column<long>(type: "bigint", nullable: true),
                     inactive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Customers", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Customers_addresses_Addressid",
+                        column: x => x.Addressid,
+                        principalTable: "addresses",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -59,6 +65,11 @@ namespace Logistic.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Addressid",
+                table: "Customers",
+                column: "Addressid");
 
             migrationBuilder.CreateIndex(
                 name: "IX_delivery_points_Addressid",

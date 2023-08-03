@@ -11,6 +11,7 @@ public class CustomerService
     public List<string> ActionErrors { get; set; }
     
     private ICustomersRepository _customersRepository;
+    private IAddressesRepository _addressesRepository;
     private IValidatable<CustomerBusiness> _customerValidator;
     private IDomainMappable<Customer,CustomerBusiness> _customerMapper;
     private DataBaseContext _db;
@@ -46,7 +47,13 @@ public class CustomerService
                 continue;
             }
 
+            
             var customer = _customerMapper.MapToDomain(customerBusiness);
+            if (customer.Address != null)
+            {
+                customer.Address = _addressesRepository.Get(customer.Address.id);
+            }
+            
             _customersRepository.Create(customer);
         }
         
@@ -67,15 +74,8 @@ public class CustomerService
             }
 
             var customer = _customerMapper.MapToDomain(customerBusiness);
-            var customerForEdit = _customersRepository.Get(customer.id);
-            if (customerForEdit == null)
-            {
-                ActionErrors.Add($"Пользователя с id {customerBusiness.id} не существует в системе");
-            }
 
-            customerForEdit.name = customerBusiness.name;
-        
-            _customersRepository.Update(customerForEdit);
+            _customersRepository.Update(customer);
         }
         
         await _customersRepository.SaveAsync();

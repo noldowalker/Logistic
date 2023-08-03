@@ -11,7 +11,8 @@ public class CustomerBusinessMapper : IDomainMappable<Customer, CustomerBusiness
         {
             id = entity.id ?? 0,
             inactive = entity.inactive ?? false,
-            name = entity.name
+            Name = entity.name,
+            Address = entity.Address
         };
     }
 
@@ -21,7 +22,8 @@ public class CustomerBusinessMapper : IDomainMappable<Customer, CustomerBusiness
         {
             id = entity.id,
             inactive = entity.inactive,
-            name = entity.name
+            name = entity.Name,
+            Address = entity.Address
         };
     }
 }

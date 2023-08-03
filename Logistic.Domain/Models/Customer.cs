@@ -6,5 +6,7 @@ namespace Domain.Models;
 public class Customer: BaseModel
 {
     [Required]
-    public string ? name { get; set; }
+    public string ? Name { get; set; }
+
+    public Address? Address { get; set; }
 }

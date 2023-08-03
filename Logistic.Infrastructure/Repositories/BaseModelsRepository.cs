@@ -6,47 +6,47 @@ namespace Logistic.Infrastructure.Repositories;
 
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
-    private DataBaseContext _db;
+    protected DataBaseContext _db;
 
     public BaseModelsRepository(DataBaseContext db)
     {
         _db = db;
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    public IEnumerable<T> GetList()
+    public virtual IEnumerable<T> GetList()
     {
         return _db.Set<T>().ToList();
     }
 
-    public T? Get(long id)
+    public virtual T? Get(long id)
     {
         return _db.Set<T>().Find(id);
     }
 
-    public void Create(T item)
+    public virtual void Create(T item)
     {
         _db.Set<T>().Add(item);
     }
 
-    public void Update(T item)
+    public virtual void Update(T item)
     {
         _db.Entry(item).State = EntityState.Modified;
     }
 
-    public void Delete(long id)
+    public virtual void Delete(long id)
     {
         var entity = _db.Set<T>().Find(id);
         if (entity != null)
             _db.Set<T>().Remove(entity);
     }
 
-    public async Task SaveAsync()
+    public virtual async Task SaveAsync()
     {
         await _db.SaveChangesAsync();
     }

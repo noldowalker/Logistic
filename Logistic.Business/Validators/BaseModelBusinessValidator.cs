@@ -42,7 +42,7 @@ public class BaseModelBusinessValidator<T> : IValidatable<T> where T : BaseModel
     
     private void IdMustNotExists(T entity)
     {
-        if (entity.id != null)
+        if (entity.id != null && entity.id != 0)
             ValidationErrors.Add("При создании сущности недопустимо указывать id");
     }
 
