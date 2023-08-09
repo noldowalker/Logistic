@@ -14,10 +14,8 @@ public class CustomerService
     private IAddressesRepository _addressesRepository;
     private IValidatable<CustomerBusiness> _customerValidator;
     private IDomainMappable<Customer,CustomerBusiness> _customerMapper;
-    private DataBaseContext _db;
     
     public CustomerService(
-        DataBaseContext db,
         ICustomersRepository customersRepository, 
         IValidatable<CustomerBusiness> customerValidator,
         IDomainMappable<Customer,CustomerBusiness> customerMapper)
@@ -25,8 +23,8 @@ public class CustomerService
         _customersRepository = customersRepository;
         _customerValidator = customerValidator;
         _customerMapper = customerMapper;
-        _db = db;
     }
+    
     public GetListServiceResult<CustomerBusiness> GetListOfCustomers()
     {
         var customers = _customersRepository.GetList();
