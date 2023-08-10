@@ -1,5 +1,7 @@
 ﻿using System.Text.RegularExpressions;
+using Domain.Interfaces;
 using Logistic.Application.BusinessModels;
+using Logistic.Application.BusinessServiceResults;
 
 namespace Logistic.Application.Validators;
 
@@ -17,6 +19,7 @@ public class CustomerBusinessValidator : BaseModelBusinessValidator<CustomerBusi
         var isMatch = entity.name != null && Regex.IsMatch(entity.name, @"^[а-яА-Я\sa-zA-z]+$");
 
         if (!isMatch)
-            ValidationErrors.Add("Имя может включать в себя только кириллические или латинские символы.");
+            ValidationErrors
+                .Add(WorkRecord.CreateValidationError("Имя может включать в себя только кириллические или латинские символы."));
     }
 }

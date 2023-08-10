@@ -6,9 +6,10 @@ using CustomerBusiness = Logistic.Application.BusinessModels.CustomerBusiness;
 
 namespace Logistic.Application.Services;
 
-public class CustomerService
+public class CustomerService : IBusinessService
 {
-    public List<string> ActionErrors { get; set; }
+    public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
+    public bool IsLastActionSuccessful { get => ActionRecords.IsContainErrors(); } 
     
     private ICustomersRepository _customersRepository;
     private IAddressesRepository _addressesRepository;
@@ -28,20 +29,19 @@ public class CustomerService
     public GetListServiceResult<CustomerBusiness> GetListOfCustomers()
     {
         var customers = _customersRepository.GetList();
+        ActionRecords.AddRange(_customersRepository.ActionRecords);
         
         return ConvertCustomersToResult(customers);
     }
 
     public async Task RegisterNewCustomers(List<CustomerBusiness> customers)
     {
-        ActionErrors = new List<string>();
         foreach (var customerBusiness in customers)
         {
             _customerValidator.ValidateForCreate(customerBusiness);
-            if (_customerValidator.ValidationErrors.Any())
+            if (!_customerValidator.IsValidationSuccessful)
             {
-                var error = $"Не удалось создать {customerBusiness.name} из-за ошибок валидации:" + String.Join(";", _customerValidator.ValidationErrors);
-                ActionErrors.Add(error);
+                ActionRecords.AddRange(_customerValidator.ValidationErrors);
                 continue;
             }
 
@@ -56,18 +56,19 @@ public class CustomerService
         }
         
         await _customersRepository.SaveAsync();
+        
+        ActionRecords.AddRange(_customersRepository.ActionRecords);
     }
 
     public async Task UpdateCustomers(List<CustomerBusiness> customers)
     {
-        ActionErrors = new List<string>();
         foreach (var customerBusiness in customers)
         {
             _customerValidator.ValidateForUpdate(customerBusiness);
             if (_customerValidator.ValidationErrors.Any())
             {
                 var error = $"не удалось изменить {customerBusiness.name} из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
-                ActionErrors.Add(error);
+                ActionRecords.Add(WorkRecord.CreateBusinessError(error));
                 continue;
             }
 
@@ -95,7 +96,6 @@ public class CustomerService
         {
             result.ListOfModels.Add(_customerMapper.MapFromDomain(customer));
         }
-        
 
         return result;
     }

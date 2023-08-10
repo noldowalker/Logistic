@@ -7,6 +7,7 @@ namespace Logistic.Infrastructure.Repositories;
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
     protected DataBaseContext _db;
+    public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
 
     public BaseModelsRepository(DataBaseContext db)
     {
@@ -18,6 +19,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         Dispose(true);
         GC.SuppressFinalize(this);
     }
+
 
     public virtual IEnumerable<T> GetList()
     {

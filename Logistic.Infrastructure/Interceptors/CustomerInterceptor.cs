@@ -5,6 +5,10 @@ namespace Logistic.Infrastructure.Interceptors;
 
 public class CustomerInterceptor : IInterceptable<Customer>
 {
+    public bool IsChainBreaker { get; } = false;
+    public List<string> Errors { get; set; } = new List<string>();
+    public List<string> Notifications { get; set; } = new List<string>();
+
     public string? BeforeRead(Customer entity)
     {
         return null;

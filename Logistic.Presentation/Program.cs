@@ -1,5 +1,6 @@
 using Logistic;
 using Logistic.Application;
+using Logistic.Filters;
 using Logistic.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,7 @@ builder.Services.AddBusinessGeneration();
 
 builder.Services.AddPresentationDependencies();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add(typeof(ActionResponseFilter)));
 builder.Services.AddControllersGeneration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

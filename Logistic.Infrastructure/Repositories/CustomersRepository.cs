@@ -30,6 +30,9 @@ public class CustomersRepository: BaseModelsRepository<Customer>, ICustomersRepo
                 interceptor.AfterRead(entity);
             }
         }
+        
+        ActionRecords.Add(WorkRecord.CreateNotification("Тестовый все окей!"));
+        ActionRecords.Add(WorkRecord.CreateInfrastructureError("Тестовая ошибка инфраструктуры"));
         return result;
     }
 

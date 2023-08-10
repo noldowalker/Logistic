@@ -1,3 +1,4 @@
+using Domain.Interfaces;
 using Logistic.Application.Services;
 using Logistic.Dto.Requests;
 using Logistic.Dto.Responses;
@@ -23,36 +24,32 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet]
-    public ObjectResult GetAllCustomers()
+    public LogisticWebResponse GetAllCustomers()
     {
         var result = _customerService.GetListOfCustomers();
 
         var response = new LogisticWebResponse()
         {
             Data = result?.ListOfModels?.Cast<object>().ToList() ?? new List<object>(),
-            Notification = result?.Notification,
-            Errors = _customerService.ActionErrors,
+            Records = _customerService.ActionRecords
         };
 
-        return response.AsObjectResult();
+        return response;
     }
     
     [HttpPost]
-    public async Task<ObjectResult> Create(LogisticWebRequestWithEntityList<CustomerBusiness> form)
+    public async Task<LogisticWebResponse> Create(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
         var customers = form.Data;
         await _customerService.RegisterNewCustomers(customers);
+
+        var response= new LogisticWebResponse();
+        response.Records.AddRange(_customerService.ActionRecords);
         
-        if (!_customerService.ActionErrors.Any())
-            return new LogisticWebResponse()
-            {
-                Notification = "Пользователь успешно добавлен"
-            }.AsObjectResult();  
-        
-        return new LogisticWebResponse()
-        {
-            Errors = _customerService.ActionErrors
-        }.AsObjectResult(); 
+        if (!_customerService.IsLastActionSuccessful)
+            response.Records.Add(WorkRecord.CreateNotification("Пользователь успешно добавлен!"));
+
+        return response;
     }
     
     [HttpPost]
@@ -61,12 +58,10 @@ public class CustomerController : ControllerBase
         var customers = form.Data;
         await _customerService.UpdateCustomers(customers);
 
-        if (!_customerService.ActionErrors.Any())
-            return new LogisticWebResponse()
-            {
-                Notification = "Имя пользователя успешно изменено"
-            }.AsObjectResult();
-
-        return LogisticWebResponse.BadResult(_customerService.ActionErrors).AsObjectResult();
+        return (!_customerService.IsLastActionSuccessful)
+            ?  LogisticWebResponse
+                .CreateWithNotification("Пользователь успешно изменен", _customerService.ActionRecords)
+                .AsObjectResult()
+            :  LogisticWebResponse.BadResult(_customerService.ActionRecords).AsObjectResult(); 
     }
 }

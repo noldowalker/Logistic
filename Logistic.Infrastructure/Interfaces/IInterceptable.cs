@@ -4,6 +4,10 @@ namespace Logistic.Infrastructure.Interfaces;
 
 public interface IInterceptable<T> where T : BaseModel
 {
+    public bool IsChainBreaker { get; }
+    public List<string> Errors { get; set; }
+    public List<string> Notifications { get; set; }
+    
     public string? BeforeRead(T entity);
     public string? AfterRead(T entity);
     public string? BeforeCreate(T entity);
