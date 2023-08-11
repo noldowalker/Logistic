@@ -1,17 +1,26 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
+using Logistic.Infrastructure.Attributes;
+using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Reflection;
+using Logistic.Infrastructure.Extensions;
 
 namespace Logistic.Infrastructure.Repositories;
 
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
+    protected readonly List<IInterceptable<T>> _interceptors;
+    
     protected DataBaseContext _db;
     public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
 
-    public BaseModelsRepository(DataBaseContext db)
+    public BaseModelsRepository(DataBaseContext db, IEnumerable<IInterceptable<T>> interceptors)
     {
         _db = db;
+        _interceptors = interceptors.ToList();
+        _interceptors.SortByOrder();
     }
 
     public virtual void Dispose()
@@ -47,22 +56,23 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         if (entity != null)
             _db.Set<T>().Remove(entity);
     }
-
-    public virtual async Task SaveAsync()
-    {
-        await _db.SaveChangesAsync();
-    }
     
-    private bool disposed = false;
     public virtual void Dispose(bool disposing)
     {
-        if (!this.disposed)
+        if (!disposed)
         {
             if (disposing)
             {
                 _db.Dispose();
             }
         }
-        this.disposed = true;
+        disposed = true;
     }
+    
+    public virtual async Task SaveAsync()
+    {
+        await _db.SaveChangesAsync();
+    }
+    
+    protected bool disposed = false;
 }

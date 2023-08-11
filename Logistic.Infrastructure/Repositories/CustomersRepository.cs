@@ -9,11 +9,9 @@ namespace Logistic.Infrastructure.Repositories;
 public class CustomersRepository: BaseModelsRepository<Customer>, ICustomersRepository
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IEnumerable<IInterceptable<Customer>> _interceptors;
-    public CustomersRepository(DataBaseContext db, IServiceProvider serviceProvider, IEnumerable<IInterceptable<Customer>> interceptors) : base(db)
+    public CustomersRepository(DataBaseContext db, IEnumerable<IInterceptable<Customer>> interceptors, IServiceProvider serviceProvider) : base(db, interceptors)
     {
         _serviceProvider = serviceProvider;
-        _interceptors = interceptors;
     }
 
     public override IEnumerable<Customer> GetList()

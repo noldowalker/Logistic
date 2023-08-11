@@ -1,8 +1,10 @@
 ﻿using Domain.Models;
+using Logistic.Infrastructure.Attributes;
 using Logistic.Infrastructure.Interfaces;
 
 namespace Logistic.Infrastructure.Interceptors;
 
+[Order(2)]
 public class CustomerAdditionalInterceptor : IInterceptable<Customer>
 {
     public bool IsChainBreaker { get; } = false;

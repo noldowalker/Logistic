@@ -2,6 +2,7 @@
 
 namespace Logistic.Infrastructure.Interfaces;
 
+
 public interface IInterceptable<T> where T : BaseModel
 {
     public bool IsChainBreaker { get; }
