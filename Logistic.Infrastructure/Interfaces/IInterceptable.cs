@@ -1,20 +1,17 @@
-﻿using Domain.Models;
+﻿using Domain.Interfaces;
+using Domain.Models;
 
 namespace Logistic.Infrastructure.Interfaces;
 
 
 public interface IInterceptable<T> where T : BaseModel
 {
-    public bool IsChainBreaker { get; }
-    public List<string> Errors { get; set; }
-    public List<string> Notifications { get; set; }
-    
-    public string? BeforeRead(T entity);
-    public string? AfterRead(T entity);
-    public string? BeforeCreate(T entity);
-    public string? AfterCreate(T entity);
-    public string? BeforeUpdate(T entity);
-    public string? AfterUpdate(T entity);
-    public string? BeforeDelete(T entity);
-    public string? AfterDelete(T entity);
+    public WorkRecord? BeforeRead(T entity);
+    public WorkRecord? AfterRead(T entity);
+    public WorkRecord? BeforeCreate(T entity);
+    public WorkRecord? AfterCreate(T entity);
+    public WorkRecord? BeforeUpdate(T entity);
+    public WorkRecord? AfterUpdate(T entity);
+    public WorkRecord? BeforeDelete(T entity);
+    public WorkRecord? AfterDelete(T entity);
 }

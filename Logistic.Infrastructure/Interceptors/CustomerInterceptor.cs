@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.Interfaces;
+using Domain.Models;
 using Logistic.Infrastructure.Attributes;
 using Logistic.Infrastructure.Interfaces;
 
@@ -7,47 +8,49 @@ namespace Logistic.Infrastructure.Interceptors;
 [Order(1)]
 public class CustomerInterceptor : IInterceptable<Customer>
 {
-    public bool IsChainBreaker { get; } = false;
-    public List<string> Errors { get; set; } = new List<string>();
-    public List<string> Notifications { get; set; } = new List<string>();
-
-    public string? BeforeRead(Customer entity)
+    public WorkRecord? BeforeRead(Customer entity)
     {
         return null;
     }
 
-    public string? AfterRead(Customer entity)
+    public WorkRecord? AfterRead(Customer entity)
     {
         entity.Name += " INTERCEPTED 1";
         return null;
     }
 
-    public string? BeforeCreate(Customer entity)
+    public WorkRecord? BeforeCreate(Customer entity)
     {
-        return entity.Name.ToLower() == "василий" ? "Васям тут не место!" : null;
+        if (entity.Name.ToLower() != "василий")
+            return null;
+
+        return WorkRecord.CreateInfrastructureError("Васям тут не место!", true);
     }
 
-    public string? AfterCreate(Customer entity)
-    {
-        throw new NotImplementedException();
-    }
-
-    public string? BeforeUpdate(Customer entity)
-    {
-        return entity.Name.ToLower() == "василий" ? "Васям тут не место!" : null;
-    }
-
-    public string? AfterUpdate(Customer entity)
+    public WorkRecord? AfterCreate(Customer entity)
     {
         return null;
     }
 
-    public string? BeforeDelete(Customer entity)
+    public WorkRecord? BeforeUpdate(Customer entity)
+    {
+        if (entity.Name.ToLower() != "василий")
+            return null;
+
+        return WorkRecord.CreateInfrastructureError("Васям тут не место!", true);
+    }
+
+    public WorkRecord? AfterUpdate(Customer entity)
     {
         return null;
     }
 
-    public string? AfterDelete(Customer entity)
+    public WorkRecord? BeforeDelete(Customer entity)
+    {
+        return null;
+    }
+
+    public WorkRecord? AfterDelete(Customer entity)
     {
         return null;
     }

@@ -20,6 +20,6 @@ public class CustomerBusinessValidator : BaseModelBusinessValidator<CustomerBusi
 
         if (!isMatch)
             ValidationErrors
-                .Add(WorkRecord.CreateValidationError("Имя может включать в себя только кириллические или латинские символы."));
+                .Add(WorkRecord.CreateValidationError("Имя может включать в себя только кириллические или латинские символы.", true));
     }
 }

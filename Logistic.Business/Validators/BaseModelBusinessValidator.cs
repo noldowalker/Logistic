@@ -35,11 +35,11 @@ public class BaseModelBusinessValidator<T> : IValidatable<T> where T : BaseModel
         {
             case null:
                 ValidationErrors
-                    .Add(WorkRecord.CreateValidationError("При редактировании сущности необходимо указать id"));
+                    .Add(WorkRecord.CreateValidationError("При редактировании сущности необходимо указать id", true));
                 break;
             case < 1:
                 ValidationErrors
-                    .Add(WorkRecord.CreateValidationError("При редактировании сущности необходимо допустимый id, который больше 0"));
+                    .Add(WorkRecord.CreateValidationError("При редактировании сущности необходимо допустимый id, который больше 0", true));
                 break;
         }
     }
@@ -48,20 +48,20 @@ public class BaseModelBusinessValidator<T> : IValidatable<T> where T : BaseModel
     {
         if (entity.id != null && entity.id != 0)
             ValidationErrors
-                .Add(WorkRecord.CreateValidationError("При создании сущности недопустимо указывать id"));
+                .Add(WorkRecord.CreateValidationError("При создании сущности недопустимо указывать id", true));
     }
 
     private void NotDeactivate(T entity)
     {
         if(entity.inactive == true)
             ValidationErrors
-                .Add(WorkRecord.CreateValidationError("При редактировании сущности недопустима ее деактивация, используйте для этого удаление"));
+                .Add(WorkRecord.CreateValidationError("При редактировании сущности недопустима ее деактивация, используйте для этого удаление", true));
     }
 
     private void ExpectDeactivation(T entity)
     {
         if(entity.inactive != true)
             ValidationErrors
-                .Add(WorkRecord.CreateValidationError("При деактивации допустимо только изменение поля активированности на false"));
+                .Add(WorkRecord.CreateValidationError("При деактивации допустимо только изменение поля активированности на false", true));
     }
 }

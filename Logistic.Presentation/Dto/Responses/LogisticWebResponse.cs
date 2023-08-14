@@ -18,6 +18,20 @@ public class LogisticWebResponse : ActionResult
         Data = new List<object>();
         _statusCode = 200;
     }
+    
+    public LogisticWebResponse(List<WorkRecord> records)
+    {
+        Data = new List<object>();
+        _statusCode = 200;
+        Records = records;
+    }
+    
+    public LogisticWebResponse(List<object> data, List<WorkRecord> records)
+    {
+        Data = data;
+        _statusCode = 200;
+        Records = records;
+    }
 
     public ObjectResult AsObjectResult()
     {
@@ -29,28 +43,11 @@ public class LogisticWebResponse : ActionResult
 
     public void ActualizeStatusCodeByRecords()
     {
-        if (Records.IsContainErrors())
+        if (Records.IsBadRequestErrors())
             _statusCode = 400;
-    }
-    
-    public static LogisticWebResponse BadResult(List<WorkRecord> errors)
-    {
-        return new LogisticWebResponse()
-        {
-            _statusCode = 400,
-            Records = errors,
-        };
-    }
-    
-    public static LogisticWebResponse BadResult(string errorText)
-    {
-        var record = WorkRecord.CreateBusinessError(errorText);
-        var result = new LogisticWebResponse()
-        {
-            _statusCode = 400
-        };
-        result.Records.Add(record);
-        return result;
+        
+        if (Records.IsInternalErrors())
+            _statusCode = 500;
     }
     
 
@@ -64,6 +61,4 @@ public class LogisticWebResponse : ActionResult
         result.Records.Add(record);
         return result;
     }
-    
-    
 }

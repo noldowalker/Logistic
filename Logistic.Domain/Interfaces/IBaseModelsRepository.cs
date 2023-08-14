@@ -7,8 +7,8 @@ public interface IBaseModelsRepository<T>: IDisposable where T : BaseModel
     public List<WorkRecord> ActionRecords { get; set; }
     IEnumerable<T> GetList();
     T Get(long id);
-    void Create(T item);
-    void Update(T item);
-    void Delete(long id);
+    Task Create(T item);
+    Task Update(T item);
+    Task Delete(long id);
     Task SaveAsync();
 }

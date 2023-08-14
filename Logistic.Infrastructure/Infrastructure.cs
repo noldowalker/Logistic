@@ -18,7 +18,7 @@ public static class Infrastructure
 
     public static void AddInfrastructureDependencies(this IServiceCollection services)
     {
-        services.AddScoped<ICustomersRepository, CustomersRepository>();
+        services.AddScoped<IBaseModelsRepository<Customer>, CustomersRepository>();
     }
 
     public static void AddInfrastructureGeneration(this IServiceCollection services)

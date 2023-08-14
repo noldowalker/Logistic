@@ -27,12 +27,8 @@ public class CustomerController : ControllerBase
     public LogisticWebResponse GetAllCustomers()
     {
         var result = _customerService.GetListOfCustomers();
-
-        var response = new LogisticWebResponse()
-        {
-            Data = result?.ListOfModels?.Cast<object>().ToList() ?? new List<object>(),
-            Records = _customerService.ActionRecords
-        };
+        var data = result?.ListOfModels?.Cast<object>().ToList() ?? new List<object>();
+        var response = new LogisticWebResponse(data, _customerService.ActionRecords);
 
         return response;
     }
@@ -45,23 +41,18 @@ public class CustomerController : ControllerBase
 
         var response= new LogisticWebResponse();
         response.Records.AddRange(_customerService.ActionRecords);
-        
-        if (!_customerService.IsLastActionSuccessful)
-            response.Records.Add(WorkRecord.CreateNotification("Пользователь успешно добавлен!"));
 
         return response;
     }
     
     [HttpPost]
-    public async Task<ObjectResult> Change(LogisticWebRequestWithEntityList<CustomerBusiness> form)
+    public async Task<LogisticWebResponse> Change(LogisticWebRequestWithEntityList<CustomerBusiness> form)
     {
         var customers = form.Data;
         await _customerService.UpdateCustomers(customers);
 
-        return (!_customerService.IsLastActionSuccessful)
-            ?  LogisticWebResponse
-                .CreateWithNotification("Пользователь успешно изменен", _customerService.ActionRecords)
-                .AsObjectResult()
-            :  LogisticWebResponse.BadResult(_customerService.ActionRecords).AsObjectResult(); 
+        var result = new LogisticWebResponse();
+        result.Records = _customerService.ActionRecords;
+        return result;
     }
 }

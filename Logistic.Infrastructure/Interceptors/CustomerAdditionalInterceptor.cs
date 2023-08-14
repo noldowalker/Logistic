@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Domain.Interfaces;
+using Domain.Models;
 using Logistic.Infrastructure.Attributes;
 using Logistic.Infrastructure.Interfaces;
 
@@ -11,43 +12,49 @@ public class CustomerAdditionalInterceptor : IInterceptable<Customer>
     public List<string> Errors { get; set; } = new List<string>();
     public List<string> Notifications { get; set; } = new List<string>();
 
-    public string? BeforeRead(Customer entity)
+    public WorkRecord? BeforeRead(Customer entity)
     {
         return null;
     }
 
-    public string? AfterRead(Customer entity)
+    public WorkRecord? AfterRead(Customer entity)
     {
         entity.Name += " INTERCEPTED 2";
         return null;
     }
 
-    public string? BeforeCreate(Customer entity)
+    public WorkRecord? BeforeCreate(Customer entity)
+    {
+        if (entity.Name.ToLower() != "петр")
+            return null;
+
+        return WorkRecord.CreateInfrastructureError("Петям тут не место!", true);
+    }
+
+    public WorkRecord? AfterCreate(Customer entity)
     {
         return null;
     }
 
-    public string? AfterCreate(Customer entity)
+    public WorkRecord? BeforeUpdate(Customer entity)
+    {
+        if (entity.Name.ToLower() != "петр")
+            return null;
+
+        return WorkRecord.CreateInfrastructureError("Петям тут не место!", true);
+    }
+
+    public WorkRecord? AfterUpdate(Customer entity)
     {
         return null;
     }
 
-    public string? BeforeUpdate(Customer entity)
-    {
-        return entity.Name.ToLower() == "петр" ? "Петям тут тоже не место!" : null;
-    }
-
-    public string? AfterUpdate(Customer entity)
+    public WorkRecord? BeforeDelete(Customer entity)
     {
         return null;
     }
 
-    public string? BeforeDelete(Customer entity)
-    {
-        return null;
-    }
-
-    public string? AfterDelete(Customer entity)
+    public WorkRecord? AfterDelete(Customer entity)
     {
         return null;
     }

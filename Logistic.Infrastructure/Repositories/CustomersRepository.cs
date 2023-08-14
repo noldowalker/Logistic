@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Infrastructure.Repositories;
 
-public class CustomersRepository: BaseModelsRepository<Customer>, ICustomersRepository
+public class CustomersRepository: BaseModelsRepository<Customer>
 {
     private readonly IServiceProvider _serviceProvider;
     public CustomersRepository(DataBaseContext db, IEnumerable<IInterceptable<Customer>> interceptors, IServiceProvider serviceProvider) : base(db, interceptors)
@@ -14,34 +14,26 @@ public class CustomersRepository: BaseModelsRepository<Customer>, ICustomersRepo
         _serviceProvider = serviceProvider;
     }
 
-    public override IEnumerable<Customer> GetList()
+    protected override IEnumerable<Customer> GetListAction()
     {
         var result = _db
             .Set<Customer>()
             .Include(c => c.Address)
             .ToList();
-
-        foreach (var entity in result)
-        {
-            foreach (var interceptor in _interceptors)
-            {
-                interceptor.AfterRead(entity);
-            }
-        }
         
-        ActionRecords.Add(WorkRecord.CreateNotification("Тестовый все окей!"));
-        ActionRecords.Add(WorkRecord.CreateInfrastructureError("Тестовая ошибка инфраструктуры"));
+        //ActionRecords.Add(WorkRecord.CreateNotification("Тестовый все окей!"));
+        //ActionRecords.Add(WorkRecord.CreateInfrastructureError("Тестовая ошибка инфраструктуры"));
         return result;
     }
 
-    public override Customer? Get(long id)
+    protected override Customer? GetAction(long id)
     {
         return _db.Set<Customer>()
             .Include(c => c.Address)
             .SingleOrDefault(c => c.id == id);
     }
 
-    public override void Update(Customer item)
+    public override async Task  Update(Customer item)
     {
         base.Update(item);
         

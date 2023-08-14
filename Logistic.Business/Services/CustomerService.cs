@@ -9,15 +9,15 @@ namespace Logistic.Application.Services;
 public class CustomerService : IBusinessService
 {
     public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
-    public bool IsLastActionSuccessful { get => ActionRecords.IsContainErrors(); } 
+    public bool IsLastActionSuccessful { get => ActionRecords.IsBadRequestErrors(); } 
     
-    private ICustomersRepository _customersRepository;
+    private IBaseModelsRepository<Customer> _customersRepository;
     private IAddressesRepository _addressesRepository;
     private IValidatable<CustomerBusiness> _customerValidator;
     private IDomainMappable<Customer,CustomerBusiness> _customerMapper;
     
     public CustomerService(
-        ICustomersRepository customersRepository, 
+        IBaseModelsRepository<Customer> customersRepository, 
         IValidatable<CustomerBusiness> customerValidator,
         IDomainMappable<Customer,CustomerBusiness> customerMapper)
     {
@@ -52,10 +52,8 @@ public class CustomerService : IBusinessService
                 customer.Address = _addressesRepository.Get(customer.Address.id);
             }
             
-            _customersRepository.Create(customer);
+            await _customersRepository.Create(customer);
         }
-        
-        await _customersRepository.SaveAsync();
         
         ActionRecords.AddRange(_customersRepository.ActionRecords);
     }

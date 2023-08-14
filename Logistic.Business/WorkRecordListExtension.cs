@@ -6,14 +6,22 @@ namespace Logistic.Application;
 
 public static class WorkRecordListExtension
 {
-    private static readonly List<WorkRecordLevel> ErrorLevels = new List<WorkRecordLevel>()
+    private static readonly List<WorkRecordLevel> BadRequestLevels = new List<WorkRecordLevel>()
     {
         WorkRecordLevel.ValidationError,
-        WorkRecordLevel.BusinessError,
+        WorkRecordLevel.BusinessError
+    };
+    
+    private static readonly List<WorkRecordLevel> InternalErrorLevels = new List<WorkRecordLevel>()
+    {
         WorkRecordLevel.InfrastructureError
     };
-    public static bool IsContainErrors(this List<WorkRecord> records)
+    public static bool IsBadRequestErrors(this List<WorkRecord> records)
     {
-        return records.Any(r => ErrorLevels.Contains(r.Level));
+        return records.Any(r => BadRequestLevels.Contains(r.Level) && r.IsChainBreaker);
+    }
+    public static bool IsInternalErrors(this List<WorkRecord> records)
+    {
+        return records.Any(r => InternalErrorLevels.Contains(r.Level) && r.IsChainBreaker);
     }
 }
