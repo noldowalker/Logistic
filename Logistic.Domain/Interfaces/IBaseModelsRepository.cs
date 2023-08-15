@@ -1,14 +1,15 @@
 ﻿using Domain.Models;
+using Domain.WorkResults;
 
 namespace Domain.Interfaces;
 
 public interface IBaseModelsRepository<T>: IDisposable where T : BaseModel
 {
-    public List<WorkRecord> ActionRecords { get; set; }
+    public IWorkResult Result { get; set; }
     IEnumerable<T> GetList();
-    T Get(long id);
-    Task Create(T item);
-    Task Update(T item);
-    Task Delete(long id);
+    T? Get(long id);
+    Task<T?> Create(T item);
+    Task<T?> Update(T item);
+    Task<T?> Delete(long id);
     Task SaveAsync();
 }

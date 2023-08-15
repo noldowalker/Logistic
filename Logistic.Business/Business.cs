@@ -1,12 +1,7 @@
-﻿using System.Reflection;
-using Domain.Attributes;
-using Domain.Interfaces;
+﻿using Domain.Attributes;
 using Domain.Models;
-using Logistic.Application.BusinessModels;
-using Logistic.Application.Mappers;
 using Logistic.Application.Services;
 using Logistic.Application.Validators;
-using Logistic.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Application;
@@ -28,6 +23,8 @@ public static class Business
                 Assembly.GetExecutingAssembly().GetType($"{type.Namespace}.Services.{type.Name}Service");*/
 
             services.AddScoped(baseBusinessServiceType, baseBusinessServiceType);
+            
+            AddValidatorsForType(services, type);
         }
 
     }
@@ -35,17 +32,33 @@ public static class Business
     public static void AddBusinessDependencies(this IServiceCollection services)
     {
         services.AddScoped<CustomerService, CustomerService>();
-        AddMappers(services);
         AddValidators(services);
-    }
-
-    private static void AddMappers(IServiceCollection services)
-    {
-        services.AddScoped<IDomainMappable<Customer,CustomerBusiness>, CustomerBusinessMapper>();
     }
 
     private static void AddValidators(IServiceCollection services)
     {
-        services.AddScoped<IValidatable<CustomerBusiness>, CustomerBusinessValidator>();
+        services.AddScoped<IValidatable<Customer>, CustomerValidator>();
+    }
+    
+    private static void AddValidatorsForType(IServiceCollection services, Type baseModelType)
+    {
+        // тут важно искать по конкретному типу, т.е. указать какой именно дженерик нас интересует. Иначе в сборке не найдет.
+        var interfaceType = typeof(IValidatable<>).MakeGenericType(baseModelType); 
+        var validatorTypes = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .SelectMany(a => a.GetTypes())
+            .Where(t => interfaceType.IsAssignableFrom(t));
+        
+        if (validatorTypes.Any())
+        {
+            foreach (var type in validatorTypes)
+            {
+                services.AddScoped(interfaceType, type);
+            }
+        }
+        else
+        {
+            services.AddScoped(interfaceType, typeof(BaseModelValidator<>).MakeGenericType(baseModelType));
+        }
     }
 }

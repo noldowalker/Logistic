@@ -1,98 +1,101 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
-using Logistic.Application.BusinessModels;
-using Logistic.Application.BusinessServiceResults;
-using CustomerBusiness = Logistic.Application.BusinessModels.CustomerBusiness;
+using Domain.WorkResults;
 
 namespace Logistic.Application.Services;
 
-public class CustomerService : IBusinessService
+public class CustomerService : IBusinessService<Customer>
 {
-    public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
-    public bool IsLastActionSuccessful { get => ActionRecords.IsBadRequestErrors(); } 
+    public IWorkResult Results { get; set; }
     
     private IBaseModelsRepository<Customer> _customersRepository;
-    private IAddressesRepository _addressesRepository;
-    private IValidatable<CustomerBusiness> _customerValidator;
-    private IDomainMappable<Customer,CustomerBusiness> _customerMapper;
+    private IBaseModelsRepository<Address> _addressesRepository;
+    private IValidatable<Customer> _customerValidator;
+    private IValidatable<Address> _addressValidator;
     
     public CustomerService(
         IBaseModelsRepository<Customer> customersRepository, 
-        IValidatable<CustomerBusiness> customerValidator,
-        IDomainMappable<Customer,CustomerBusiness> customerMapper)
+        IBaseModelsRepository<Address> addressesRepository,
+        IValidatable<Customer> customerValidator,
+        IValidatable<Address> addressValidator, 
+        IWorkResult results)
     {
         _customersRepository = customersRepository;
         _customerValidator = customerValidator;
-        _customerMapper = customerMapper;
+        _addressValidator = addressValidator;
+        _addressesRepository = addressesRepository;
+        Results = results;
     }
     
-    public GetListServiceResult<CustomerBusiness> GetListOfCustomers()
+    public List<Customer>? GetListOfCustomers()
     {
         var customers = _customersRepository.GetList();
-        ActionRecords.AddRange(_customersRepository.ActionRecords);
-        
-        return ConvertCustomersToResult(customers);
+        return customers.ToList();
     }
 
-    public async Task RegisterNewCustomers(List<CustomerBusiness> customers)
+    public async Task RegisterNewCustomers(List<Customer> customers)
     {
-        foreach (var customerBusiness in customers)
+        foreach (var customer in customers)
         {
-            _customerValidator.ValidateForCreate(customerBusiness);
+            _customerValidator.ValidateForCreate(customer);
             if (!_customerValidator.IsValidationSuccessful)
             {
-                ActionRecords.AddRange(_customerValidator.ValidationErrors);
                 continue;
             }
-
             
-            var customer = _customerMapper.MapToDomain(customerBusiness);
             if (customer.Address != null)
-            {
-                customer.Address = _addressesRepository.Get(customer.Address.id);
-            }
+                customer.Address = await GetOrCreateAddress(customer.Address);
             
             await _customersRepository.Create(customer);
         }
-        
-        ActionRecords.AddRange(_customersRepository.ActionRecords);
     }
 
-    public async Task UpdateCustomers(List<CustomerBusiness> customers)
+    public async Task<List<Customer>?> UpdateCustomers(List<Customer> customers)
     {
-        foreach (var customerBusiness in customers)
+        List<Customer> result = new List<Customer>();
+        
+        foreach (var customer in customers)
         {
-            _customerValidator.ValidateForUpdate(customerBusiness);
+            _customerValidator.ValidateForUpdate(customer);
             if (_customerValidator.ValidationErrors.Any())
             {
-                var error = $"не удалось изменить {customerBusiness.name} из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
-                ActionRecords.Add(WorkRecord.CreateBusinessError(error));
+                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
+                Results.AddBusinessErrorMessage(error);
                 continue;
             }
 
-            var customer = _customerMapper.MapToDomain(customerBusiness);
-
-            _customersRepository.Update(customer);
+            if (customer.Address != null)
+                customer.Address = await GetOrCreateAddress(customer.Address);
+            
+            await _customersRepository.Update(customer);
+            
+            result.Add(customer);
         }
         
         await _customersRepository.SaveAsync();
-    }
-    
-    private GetListServiceResult<CustomerBusiness> ConvertCustomersToResult(IEnumerable<Customer> customers)
-    {
-        var result = new GetListServiceResult<CustomerBusiness>();
-        var customersList = customers.ToList();
-        var isAnyCustomers = customersList.Any();
 
-        if (!isAnyCustomers)
+        return result;
+    }
+
+    private async Task<Address?> GetOrCreateAddress(Address address)
+    {
+
+        Address? result;
+        if (address.id > 0)
         {
-            result.Notification = "Клиенты не найдены.";
-            return result;
+            result = _addressesRepository.Get(address.id);
         }
-        
-        foreach (var customer in customersList)
+        else
         {
-            result.ListOfModels.Add(_customerMapper.MapFromDomain(customer));
+            _addressValidator.ValidateForCreate(address);
+            if (_addressValidator.ValidationErrors.Any())
+            {
+                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
+                Results.AddBusinessErrorMessage(error);
+                return null;
+            }
+            result = await _addressesRepository.Create(address);
+            await _addressesRepository.SaveAsync();
         }
 
         return result;

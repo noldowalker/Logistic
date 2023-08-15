@@ -1,17 +1,19 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
+using Domain.WorkResults;
 
 namespace Logistic.Infrastructure.Interfaces;
 
 
 public interface IInterceptable<T> where T : BaseModel
 {
-    public WorkRecord? BeforeRead(T entity);
-    public WorkRecord? AfterRead(T entity);
-    public WorkRecord? BeforeCreate(T entity);
-    public WorkRecord? AfterCreate(T entity);
-    public WorkRecord? BeforeUpdate(T entity);
-    public WorkRecord? AfterUpdate(T entity);
-    public WorkRecord? BeforeDelete(T entity);
-    public WorkRecord? AfterDelete(T entity);
+    public IWorkResult Results { get; }
+    public bool BeforeRead(T entity);
+    public bool AfterRead(T entity);
+    public bool BeforeCreate(T entity);
+    public bool AfterCreate(T entity);
+    public bool BeforeUpdate(T entity);
+    public bool AfterUpdate(T entity);
+    public bool BeforeDelete(T entity);
+    public bool AfterDelete(T entity);
 }

@@ -1,13 +1,12 @@
 ﻿using Domain.Enum;
-using Domain.Interfaces;
-using Logistic.Application.BusinessModels;
-using Logistic.Application.BusinessServiceResults;
+using Domain.Models;
+using Domain.WorkResults;
 
 namespace Logistic.Application;
 
-public interface IValidatable<T> where T : BaseModelBusiness
+public interface IValidatable<T> where T : BaseModel
 {
-    public List<WorkRecord> ValidationErrors { get; set; }
+    public List<WorkMessage> ValidationErrors { get; set; }
     public bool IsValidationSuccessful { get => ValidationErrors.All(w => w.Level != WorkRecordLevel.ValidationError); } 
     
     public void ValidateForCreate(T entity);

@@ -1,6 +1,5 @@
 ﻿using Domain.Enum;
-using Domain.Interfaces;
-using Logistic.Application.BusinessServiceResults;
+using Domain.WorkResults;
 
 namespace Logistic.Application;
 
@@ -16,11 +15,11 @@ public static class WorkRecordListExtension
     {
         WorkRecordLevel.InfrastructureError
     };
-    public static bool IsBadRequestErrors(this List<WorkRecord> records)
+    public static bool IsBadRequestErrors(this List<WorkMessage> records)
     {
         return records.Any(r => BadRequestLevels.Contains(r.Level) && r.IsChainBreaker);
     }
-    public static bool IsInternalErrors(this List<WorkRecord> records)
+    public static bool IsInternalErrors(this List<WorkMessage> records)
     {
         return records.Any(r => InternalErrorLevels.Contains(r.Level) && r.IsChainBreaker);
     }

@@ -1,7 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Domain.WorkResults;
 using Logistic.Application;
-using Logistic.Application.BusinessServiceResults;
-using Logistic.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logistic.Dto.Responses;
@@ -9,7 +7,7 @@ namespace Logistic.Dto.Responses;
 public class LogisticWebResponse : ActionResult
 {
     public List<object> Data { get; set; }
-    public List<WorkRecord> Records { get; set; } = new List<WorkRecord>();
+    public List<WorkMessage> Records { get; set; } = new List<WorkMessage>();
     public List<string> Flags { get; set; } = new List<string>();
     private int _statusCode;
     
@@ -19,14 +17,14 @@ public class LogisticWebResponse : ActionResult
         _statusCode = 200;
     }
     
-    public LogisticWebResponse(List<WorkRecord> records)
+    public LogisticWebResponse(List<WorkMessage> records)
     {
         Data = new List<object>();
         _statusCode = 200;
         Records = records;
     }
     
-    public LogisticWebResponse(List<object> data, List<WorkRecord> records)
+    public LogisticWebResponse(List<object> data, List<WorkMessage> records)
     {
         Data = data;
         _statusCode = 200;
@@ -51,9 +49,9 @@ public class LogisticWebResponse : ActionResult
     }
     
 
-    public static LogisticWebResponse CreateWithNotification(string notificationText, List<WorkRecord> errors)
+    public static LogisticWebResponse CreateWithNotification(string notificationText, List<WorkMessage> errors)
     {
-        var record = WorkRecord.CreateNotification(notificationText);
+        var record = WorkMessage.CreateNotification(notificationText);
         var result = new LogisticWebResponse()
         {
             Records = errors

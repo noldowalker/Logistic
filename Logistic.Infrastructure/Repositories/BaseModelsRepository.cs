@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
+using Domain.WorkResults;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Logistic.Infrastructure.Extensions;
@@ -11,13 +12,14 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     protected readonly List<IInterceptable<T>> _interceptors;
     
     protected DataBaseContext _db;
-    public List<WorkRecord> ActionRecords { get; set; } = new List<WorkRecord>();
+    public IWorkResult Result { get; set; }
 
-    public BaseModelsRepository(DataBaseContext db, IEnumerable<IInterceptable<T>> interceptors)
+    public BaseModelsRepository(DataBaseContext db, IEnumerable<IInterceptable<T>> interceptors, IWorkResult result)
     {
         _db = db;
         _interceptors = interceptors.ToList();
         _interceptors.SortByOrder();
+        Result = result;
     }
 
     public virtual void Dispose()
@@ -44,78 +46,80 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         return result;
     }
 
-    public async Task Create(T item)
+    public async Task<T?> Create(T item)
     {
         try
         {
             if (!BeforeCreate(item))
-                return;
+                return null;
             if (!CreateAction(item))
-                return;
+                return null;
             if (!AfterCreate(item))
-                return;
+                return null;
             await SaveAsync();
         }
         catch (Exception e)
         {
-            ActionRecords
-                .Add(WorkRecord.CreateInfrastructureError($"При попытке создания сущности возникла ошибка: {e.Message}", true));
+            Result.AddInfrastructureErrorMessage($"При попытке создания сущности возникла ошибка: {e.Message}");
             
-            return;
+            return null;
         }
 
-        ActionRecords
-            .Add(WorkRecord.CreateNotification("Запись успешно создана!"));
+        Result.AddNotificationMessage("Запись успешно создана!");
+        
+        return item;
     }
 
-    public virtual async Task Update(T item)
+    public virtual async Task<T?> Update(T item)
     {
         try
         {
             if (!BeforeUpdate(item))
-                return;
+                return null;
             if (!UpdateAction(item))
-                return;
+                return null;
             if (!AfterUpdate(item))
-                return;
+                return null;
             await SaveAsync();
         }
         catch (Exception e)
         {
-            ActionRecords
-                .Add(WorkRecord.CreateInfrastructureError($"При попытке обновления сущности возникла ошибка: {e.Message}", true));
+            Result
+                .AddInfrastructureErrorMessage($"При попытке обновления сущности возникла ошибка: {e.Message}");
             
-            return;
+            return null;
         }
 
-        ActionRecords
-            .Add(WorkRecord.CreateNotification("Запись успешно обновлена!"));
+        Result.AddNotificationMessage("Запись успешно обновлена!");
+
+        return item;
     }
 
-    public virtual async Task Delete(long id)
+    public virtual async Task<T?> Delete(long id)
     {
+        T? entity;
         try
         {
-            var entity = _db.Set<T>().Find(id);
+            entity = _db.Set<T>().Find(id);
 
             if (!BeforeDelete(entity))
-                return;
+                return null;
             if (!DeleteAction(entity))
-                return;
+                return null;
             if (!AfterDelete(entity))
-                return;
+                return null;
             await SaveAsync();
         }
         catch (Exception e)
         {
-            ActionRecords
-                .Add(WorkRecord.CreateInfrastructureError($"При попытке удаления сущности возникла ошибка: {e.Message}", true));
+            Result.AddInfrastructureErrorMessage($"При попытке удаления сущности возникла ошибка: {e.Message}");
             
-            return;
+            return null;
         }
 
-        ActionRecords
-            .Add(WorkRecord.CreateNotification("Запись успешно удалена!"));
+        Result.AddNotificationMessage("Запись успешно удалена!");
+
+        return entity;
     }
     
     public virtual void Dispose(bool disposing)
@@ -168,11 +172,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.AfterRead(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -188,11 +188,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.BeforeCreate(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -204,11 +200,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.AfterCreate(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -230,11 +222,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.BeforeUpdate(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -246,11 +234,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.AfterUpdate(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -259,6 +243,8 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool UpdateAction(T item)
     {
+        /*var type = typeof(IBaseModelsRepository<>).MakeGenericType(typeof(Address));
+        var addressRepo = _serviceProvider.GetRequiredService(type) as IBaseModelsRepository<Address>;*/
         _db.Entry(item).State = EntityState.Modified;
         return true;
     }
@@ -272,11 +258,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.BeforeDelete(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 
@@ -288,11 +270,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         foreach (var interceptor in _interceptors)
         {
             var result = interceptor.AfterDelete(entity);
-            if (result == null)
-                continue;
-            
-            ActionRecords.Add(result);
-            if (result.IsChainBreaker)
+            if (!result)
                 return false;
         }
 

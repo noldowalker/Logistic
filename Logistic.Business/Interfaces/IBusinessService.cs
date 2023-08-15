@@ -1,10 +1,9 @@
-﻿using Domain.Interfaces;
-using Logistic.Application.BusinessServiceResults;
+﻿using Domain.Models;
+using Domain.WorkResults;
 
 namespace Logistic.Application;
 
-public interface IBusinessService
+public interface IBusinessService<T> where T : BaseModel
 {
-    public List<WorkRecord> ActionRecords { get; set; }
-    public bool IsLastActionSuccessful { get; } 
+    public IWorkResult Results { get; set; }
 }

@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 using Domain.Enum;
 
-namespace Domain.Interfaces;
+namespace Domain.WorkResults;
 
-public class WorkRecord
+public class WorkMessage
 {
     public string Text { get; set; }
     
@@ -11,22 +11,22 @@ public class WorkRecord
     public WorkRecordLevel Level { get; init; }
     public bool IsChainBreaker { get; init; }
 
-    public static WorkRecord CreateInfrastructureError(string errorMessage, bool isChainBreaker = false) => 
+    public static WorkMessage CreateInfrastructureError(string errorMessage, bool isChainBreaker = false) => 
         CreateRecord(errorMessage, WorkRecordLevel.InfrastructureError, isChainBreaker);
-    public static WorkRecord CreateBusinessError(string errorMessage, bool isChainBreaker = false) =>
+    public static WorkMessage CreateBusinessError(string errorMessage, bool isChainBreaker = false) =>
         CreateRecord(errorMessage, WorkRecordLevel.BusinessError, isChainBreaker);
-    public static WorkRecord CreateNotification(string errorMessage) =>
+    public static WorkMessage CreateNotification(string errorMessage) =>
         CreateRecord(errorMessage, WorkRecordLevel.Notification);
-    public static WorkRecord CreateWarning(string errorMessage) =>
+    public static WorkMessage CreateWarning(string errorMessage) =>
         CreateRecord(errorMessage, WorkRecordLevel.Warning);
-    public static WorkRecord CreateValidationError(string errorMessage, bool isChainBreaker = false) =>
+    public static WorkMessage CreateValidationError(string errorMessage, bool isChainBreaker = false) =>
         CreateRecord(errorMessage, WorkRecordLevel.ValidationError, isChainBreaker);
-    public static WorkRecord CreateDebug(string errorMessage) =>
+    public static WorkMessage CreateDebug(string errorMessage) =>
         CreateRecord(errorMessage, WorkRecordLevel.Debug);
 
-    private static WorkRecord CreateRecord(string text, WorkRecordLevel level, bool isChainBreaker = false)
+    private static WorkMessage CreateRecord(string text, WorkRecordLevel level, bool isChainBreaker = false)
     {
-        return new WorkRecord()
+        return new WorkMessage()
         {
             Level = level,
             Text = text,

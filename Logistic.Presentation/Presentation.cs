@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
 using Logistic.Controllers;
 using Logistic.FeatureProviders;
-using Logistic.Infrastructure.Repositories;
-using Logistic.Interfaces;
-using CustomerBusiness = Logistic.Application.BusinessModels.CustomerBusiness;
 
 namespace Logistic;
 

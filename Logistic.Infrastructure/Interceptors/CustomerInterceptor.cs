@@ -1,5 +1,5 @@
-﻿using Domain.Interfaces;
-using Domain.Models;
+﻿using Domain.Models;
+using Domain.WorkResults;
 using Logistic.Infrastructure.Attributes;
 using Logistic.Infrastructure.Interfaces;
 
@@ -8,50 +8,59 @@ namespace Logistic.Infrastructure.Interceptors;
 [Order(1)]
 public class CustomerInterceptor : IInterceptable<Customer>
 {
-    public WorkRecord? BeforeRead(Customer entity)
+    public CustomerInterceptor(IWorkResult results)
     {
-        return null;
+        Results = results;
     }
 
-    public WorkRecord? AfterRead(Customer entity)
+    public IWorkResult Results { get; }
+
+    public bool BeforeRead(Customer entity)
+    {
+        return true;
+    }
+
+    public bool AfterRead(Customer entity)
     {
         entity.Name += " INTERCEPTED 1";
-        return null;
+        return true;
     }
 
-    public WorkRecord? BeforeCreate(Customer entity)
+    public bool BeforeCreate(Customer entity)
     {
         if (entity.Name.ToLower() != "василий")
-            return null;
+            return true;
 
-        return WorkRecord.CreateInfrastructureError("Васям тут не место!", true);
+        Results.AddInfrastructureErrorMessage("Васям тут не место!");
+        return false;
     }
 
-    public WorkRecord? AfterCreate(Customer entity)
+    public bool AfterCreate(Customer entity)
     {
-        return null;
+        return true;
     }
 
-    public WorkRecord? BeforeUpdate(Customer entity)
+    public bool BeforeUpdate(Customer entity)
     {
         if (entity.Name.ToLower() != "василий")
-            return null;
+            return true;
 
-        return WorkRecord.CreateInfrastructureError("Васям тут не место!", true);
+        Results.AddInfrastructureErrorMessage("Васям тут не место!");
+        return false;
     }
 
-    public WorkRecord? AfterUpdate(Customer entity)
+    public bool AfterUpdate(Customer entity)
     {
-        return null;
+        return true;
     }
 
-    public WorkRecord? BeforeDelete(Customer entity)
+    public bool BeforeDelete(Customer entity)
     {
-        return null;
+        return true;
     }
 
-    public WorkRecord? AfterDelete(Customer entity)
+    public bool AfterDelete(Customer entity)
     {
-        return null;
+        return true;
     }
 }

@@ -2,8 +2,10 @@
 using Domain.Attributes;
 using Domain.Interfaces;
 using Domain.Models;
+using Domain.WorkResults;
 using Logistic.Infrastructure.Interfaces;
 using Logistic.Infrastructure.Repositories;
+using Logistic.Infrastructure.WorkResult;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +21,7 @@ public static class Infrastructure
     public static void AddInfrastructureDependencies(this IServiceCollection services)
     {
         services.AddScoped<IBaseModelsRepository<Customer>, CustomersRepository>();
+        services.AddScoped<IWorkResult, WorkResultContainer>();
     }
 
     public static void AddInfrastructureGeneration(this IServiceCollection services)
