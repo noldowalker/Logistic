@@ -6,10 +6,9 @@ namespace Logistic.Application;
 
 public interface IValidatable<T> where T : BaseModel
 {
-    public List<WorkMessage> ValidationErrors { get; set; }
-    public bool IsValidationSuccessful { get => ValidationErrors.All(w => w.Level != WorkRecordLevel.ValidationError); } 
+    public IWorkResult Result { get; }
     
-    public void ValidateForCreate(T entity);
-    public void ValidateForUpdate(T entity);
-    public void ValidateForDelete(T entity);
+    public bool IsValidForCreate(T entity);
+    public bool IsValidForUpdate(T entity);
+    public bool IsValidForDelete(T entity);
 }

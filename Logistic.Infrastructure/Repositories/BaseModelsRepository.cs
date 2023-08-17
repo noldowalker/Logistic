@@ -40,7 +40,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     {
         //ToDo: придумать способ фильтрации и внедрить, для него должен быть BeforeInterceptor
         var result = GetAction(id);
-        if (AfterGet(result))
+        if (!AfterGet(result))
             return null;
         
         return result;

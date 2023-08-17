@@ -5,58 +5,81 @@ namespace Logistic.Application.Validators;
 
 public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
 {
-    public List<WorkMessage> ValidationErrors { get; set; }
+    public IWorkResult Result { get; }
 
-    public virtual void ValidateForCreate(T entity)
+    public BaseModelValidator(IWorkResult result)
     {
-        ValidationErrors = new List<WorkMessage>();
-        IdMustNotExists(entity);
-        NotDeactivate(entity);
+        Result = result;
     }
 
-    public virtual void ValidateForUpdate(T entity)
-    {
-        ValidationErrors = new List<WorkMessage>();
-        IdMustExists(entity);
-        NotDeactivate(entity);
-    }
 
-    public virtual void ValidateForDelete(T entity)
+    public virtual bool IsValidForCreate(T entity)
     {
-        ValidationErrors = new List<WorkMessage>();
-        IdMustExists(entity);
-        ExpectDeactivation(entity);
-    }
-
-    private void IdMustExists(T entity)
-    {
-        switch (entity.id)
+        var functions = new List<Func<T, bool>>
         {
-            case < 1:
-                ValidationErrors
-                    .Add(WorkMessage.CreateValidationError("При редактировании сущности необходимо допустимый id, который больше 0", true));
-                break;
-        }
+            IdMustNotExists,
+            NotDeactivate
+        };
+        
+        return functions.TrueForAll(f => f(entity));
+    }
+
+    public virtual bool IsValidForUpdate(T entity)
+    {
+        var functions = new List<Func<T, bool>>
+        {
+            IdMustExists,
+            NotDeactivate
+        };
+        
+        return functions.TrueForAll(f => f(entity));
+    }
+
+    public virtual bool IsValidForDelete(T entity)
+    {
+        var functions = new List<Func<T, bool>>
+        {
+            IdMustExists,
+            ExpectDeactivation
+        };
+        
+        return functions.TrueForAll(f => f(entity));
+    }
+
+    private bool IdMustExists(T entity)
+    {
+        if (entity.id >= 1) 
+            return true;
+        
+        Result.AddValidationErrorMessage("При редактировании сущности необходимо допустимый id, который больше 0");
+        return false;
+
     }
     
-    private void IdMustNotExists(T entity)
+    private bool IdMustNotExists(T entity)
     {
-        if (entity.id != 0)
-            ValidationErrors
-                .Add(WorkMessage.CreateValidationError("При создании сущности недопустимо указывать id", true));
+        if (entity.id == 0)
+            return true;
+        
+        Result.AddValidationErrorMessage("При создании сущности недопустимо указывать id");
+        return false;
     }
 
-    private void NotDeactivate(T entity)
+    private bool NotDeactivate(T entity)
     {
-        if(entity.inactive == true)
-            ValidationErrors
-                .Add(WorkMessage.CreateValidationError("При редактировании сущности недопустима ее деактивация, используйте для этого удаление", true));
+        if (!entity.inactive)
+            return true;
+        
+        Result.AddValidationErrorMessage("При редактировании сущности недопустима ее деактивация, используйте для этого удаление");
+        return false;
     }
 
-    private void ExpectDeactivation(T entity)
+    private bool ExpectDeactivation(T entity)
     {
-        if(entity.inactive != true)
-            ValidationErrors
-                .Add(WorkMessage.CreateValidationError("При деактивации допустимо только изменение поля активированности на false", true));
+        if (entity.inactive)
+            return true;
+        
+        Result.AddValidationErrorMessage("При деактивации допустимо только изменение поля активированности на false");
+        return false;
     }
 }

@@ -2,3 +2,7 @@
 Logistic.Domain/bin/
 Logistic.Infrastructure/bin/
 Logistic.Presentation/bin/
+Logistic.Business/obj/Debug/
+Logistic.Domain/obj/Debug/
+Logistic.Infrastructure/obj/Debug/
+Logistic.Presentation/obj/Debug/

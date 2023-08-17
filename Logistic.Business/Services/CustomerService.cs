@@ -37,8 +37,7 @@ public class CustomerService : IBusinessService<Customer>
     {
         foreach (var customer in customers)
         {
-            _customerValidator.ValidateForCreate(customer);
-            if (!_customerValidator.IsValidationSuccessful)
+            if (!_customerValidator.IsValidForCreate(customer))
             {
                 continue;
             }
@@ -56,10 +55,9 @@ public class CustomerService : IBusinessService<Customer>
         
         foreach (var customer in customers)
         {
-            _customerValidator.ValidateForUpdate(customer);
-            if (_customerValidator.ValidationErrors.Any())
+            if (!_customerValidator.IsValidForUpdate(customer))
             {
-                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
+                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.Result);
                 Results.AddBusinessErrorMessage(error);
                 continue;
             }
@@ -79,7 +77,6 @@ public class CustomerService : IBusinessService<Customer>
 
     private async Task<Address?> GetOrCreateAddress(Address address)
     {
-
         Address? result;
         if (address.id > 0)
         {
@@ -87,10 +84,9 @@ public class CustomerService : IBusinessService<Customer>
         }
         else
         {
-            _addressValidator.ValidateForCreate(address);
-            if (_addressValidator.ValidationErrors.Any())
+            if (!_addressValidator.IsValidForCreate(address))
             {
-                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.ValidationErrors);
+                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.Result);
                 Results.AddBusinessErrorMessage(error);
                 return null;
             }

@@ -6,19 +6,22 @@ namespace Logistic.Application.Validators;
 
 public class CustomerValidator : BaseModelValidator<Customer>
 {
-    public override void ValidateForCreate(Customer entity)
+    public CustomerValidator(IWorkResult result) : base(result) {}
+    
+    public override bool IsValidForCreate(Customer entity)
     {
-        base.ValidateForCreate(entity);
-        CheckName(entity);
+        var result = base.IsValidForCreate(entity);
+        return  result && CheckName(entity);
     }
 
    
-    private void CheckName(Customer entity)
+    private bool CheckName(Customer entity)
     {
         var isMatch = entity.Name != null && Regex.IsMatch(entity.Name, @"^[а-яА-Я\sa-zA-z]+$");
-
-        if (!isMatch)
-            ValidationErrors
-                .Add(WorkMessage.CreateValidationError("Имя может включать в себя только кириллические или латинские символы.", true));
+        if (isMatch)
+            return true;
+        
+        Result.AddValidationErrorMessage("Имя может включать в себя только кириллические или латинские символы.");
+        return false;
     }
 }
