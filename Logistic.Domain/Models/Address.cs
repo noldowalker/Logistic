@@ -7,10 +7,5 @@ namespace Domain.Models;
 [AutoGenerate]
 public class Address : BaseModel
 {
-    public Address(string fullAddress)
-    {
-        FullAddress = fullAddress;
-    }
-
     public string FullAddress { get; set; }
 }

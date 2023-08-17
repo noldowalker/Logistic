@@ -46,53 +46,53 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         return result;
     }
 
-    public async Task<T?> Create(T item)
+    public async Task<T?> Create(T entity)
     {
         try
         {
-            if (!BeforeCreate(item))
+            if (!BeforeCreate(entity))
                 return null;
-            if (!CreateAction(item))
+            if (!CreateAction(entity))
                 return null;
-            if (!AfterCreate(item))
+            if (!AfterCreate(entity))
                 return null;
             await SaveAsync();
         }
         catch (Exception e)
         {
-            Result.AddInfrastructureErrorMessage($"При попытке создания сущности возникла ошибка: {e.Message}");
+            Result.AddInfrastructureErrorMessage($"При попытке создания сущности {typeof(T)} возникла ошибка: {e.Message}");
             
             return null;
         }
 
-        Result.AddNotificationMessage("Запись успешно создана!");
+        Result.AddDebugMessage($"Запись успешно {typeof(T)} создана с Id = {entity.id}!");
         
-        return item;
+        return entity;
     }
 
-    public virtual async Task<T?> Update(T item)
+    public virtual async Task<T?> Update(T entity)
     {
         try
         {
-            if (!BeforeUpdate(item))
+            if (!BeforeUpdate(entity))
                 return null;
-            if (!UpdateAction(item))
+            if (!UpdateAction(entity))
                 return null;
-            if (!AfterUpdate(item))
+            if (!AfterUpdate(entity))
                 return null;
             await SaveAsync();
         }
         catch (Exception e)
         {
             Result
-                .AddInfrastructureErrorMessage($"При попытке обновления сущности возникла ошибка: {e.Message}");
+                .AddInfrastructureErrorMessage($"При попытке обновления сущности {typeof(T)} с Id = {entity.id} возникла ошибка: {e.Message}");
             
             return null;
         }
 
-        Result.AddNotificationMessage("Запись успешно обновлена!");
+        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.id} успешно обновлена!");
 
-        return item;
+        return entity;
     }
 
     public virtual async Task<T?> Delete(long id)
@@ -112,12 +112,12 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         }
         catch (Exception e)
         {
-            Result.AddInfrastructureErrorMessage($"При попытке удаления сущности возникла ошибка: {e.Message}");
+            Result.AddInfrastructureErrorMessage($"При попытке удаления сущности {typeof(T)} с Id = {id} возникла ошибка: {e.Message}");
             
             return null;
         }
 
-        Result.AddNotificationMessage("Запись успешно удалена!");
+        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {id} успешно удалена!");
 
         return entity;
     }
