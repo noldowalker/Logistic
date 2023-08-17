@@ -28,16 +28,16 @@ public class CustomerController : ControllerBase
         var result = _customerService.GetListOfCustomers();
         var data = result.ConvertToObjectsList();
 
-        return new LogisticWebResponse(data, Results.Messages);;
+        return new LogisticWebResponse(data);
     }
     
     [HttpPost]
     public async Task<LogisticWebResponse> Create(LogisticWebRequestWithEntityList<Customer> form)
     {
         var customers = form.Data;
-        await _customerService.RegisterNewCustomers(customers);
+        var createdRecords = await _customerService.RegisterNewCustomers(customers);
 
-        return new LogisticWebResponse(Results.Messages);
+        return new LogisticWebResponse(createdRecords.ConvertToObjectsList());
     }
     
     [HttpPost]
@@ -46,9 +46,6 @@ public class CustomerController : ControllerBase
         var customers = form.Data;
         var updatedRecords = await _customerService.UpdateCustomers(customers);
 
-        return new LogisticWebResponse(
-            updatedRecords.ConvertToObjectsList(),
-            Results.Messages
-        );;
+        return new LogisticWebResponse(updatedRecords.ConvertToObjectsList());
     }
 }

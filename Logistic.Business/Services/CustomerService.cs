@@ -33,8 +33,9 @@ public class CustomerService : IBusinessService<Customer>
         return customers.ToList();
     }
 
-    public async Task RegisterNewCustomers(List<Customer> customers)
+    public async Task<List<Customer>?> RegisterNewCustomers(List<Customer> customers)
     {
+        var createdEntities = new List<Customer>();
         foreach (var customer in customers)
         {
             if (!_customerValidator.IsValidForCreate(customer))
@@ -45,8 +46,12 @@ public class CustomerService : IBusinessService<Customer>
             if (customer.Address != null)
                 customer.Address = await GetOrCreateAddress(customer.Address);
             
-            await _customersRepository.Create(customer);
+            var result = await _customersRepository.Create(customer);
+            if (result!= null)
+                createdEntities.Add(result);
         }
+
+        return createdEntities;
     }
 
     public async Task<List<Customer>?> UpdateCustomers(List<Customer> customers)

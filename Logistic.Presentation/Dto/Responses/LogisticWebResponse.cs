@@ -17,18 +17,10 @@ public class LogisticWebResponse : ActionResult
         _statusCode = 200;
     }
     
-    public LogisticWebResponse(List<WorkMessage> records)
-    {
-        Data = new List<object>();
-        _statusCode = 200;
-        Records = records;
-    }
-    
-    public LogisticWebResponse(List<object> data, List<WorkMessage> records)
+    public LogisticWebResponse(List<object> data)
     {
         Data = data;
         _statusCode = 200;
-        Records = records;
     }
 
     public ObjectResult AsObjectResult()
@@ -39,13 +31,14 @@ public class LogisticWebResponse : ActionResult
         };
     }
 
-    public void ActualizeStatusCodeByRecords()
+    public void MarkAsBadRequest()
     {
-        if (Records.IsBadRequestErrors())
-            _statusCode = 400;
-        
-        if (Records.IsInternalErrors())
-            _statusCode = 500;
+        _statusCode = 400;
+    }
+    
+    public void MarkAsInternalError()
+    {
+        _statusCode = 500;
     }
     
 
