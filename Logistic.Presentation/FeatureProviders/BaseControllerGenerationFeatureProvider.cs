@@ -27,7 +27,7 @@ public class BaseControllerGenerationFeatureProvider : IApplicationFeatureProvid
             if (candidate.FullName != null && candidate.FullName.Contains("BaseController")) 
                 continue;
 
-            var propertyType = candidate.GetProperty("id")
+            var propertyType = candidate.GetProperty("Id")
                 ?.PropertyType;
             if (propertyType == null) 
                 continue;

@@ -48,7 +48,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
 
     private bool IdMustExists(T entity)
     {
-        if (entity.id >= 1) 
+        if (entity.Id >= 1) 
             return true;
         
         Result.AddValidationErrorMessage("При редактировании сущности необходимо допустимый id, который больше 0");
@@ -58,7 +58,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
     
     private bool IdMustNotExists(T entity)
     {
-        if (entity.id == 0)
+        if (entity.Id == 0)
             return true;
         
         Result.AddValidationErrorMessage("При создании сущности недопустимо указывать id");
@@ -67,7 +67,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
 
     private bool NotDeactivate(T entity)
     {
-        if (!entity.inactive)
+        if (!entity.Inactive)
             return true;
         
         Result.AddValidationErrorMessage("При редактировании сущности недопустима ее деактивация, используйте для этого удаление");
@@ -76,7 +76,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
 
     private bool ExpectDeactivation(T entity)
     {
-        if (entity.inactive)
+        if (entity.Inactive)
             return true;
         
         Result.AddValidationErrorMessage("При деактивации допустимо только изменение поля активированности на false");

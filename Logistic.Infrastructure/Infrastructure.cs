@@ -59,8 +59,9 @@ public static class Infrastructure
         var baseType = typeof(BaseModel);
         // ToDo: проверить что лучше, подгружать конкретную сборку через Load или искать по всем AppDomain.CurrentDomain.GetAssemblies()
         var assembly = Assembly.Load("Logistic.Domain");
-        var types = assembly.GetTypes().Where(t => t.IsSubclassOf(baseType));
-
+        var types = assembly.GetTypes().Where(t => t.IsSubclassOf(baseType)).ToList();
+        types.Add(baseType);
+        
         foreach (var type in types)
         {
             AddInterceptorsForType(services, type);

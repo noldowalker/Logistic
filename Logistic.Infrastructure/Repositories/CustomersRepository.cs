@@ -12,9 +12,8 @@ public class CustomersRepository: BaseModelsRepository<Customer>
         DataBaseContext db, 
         IEnumerable<IInterceptable<Customer>> interceptors, 
         IServiceProvider serviceProvider, 
-        IWorkResult result) : base(db, interceptors, result)
+        IWorkResult result) : base(db, interceptors, result, serviceProvider)
     {
-        _serviceProvider = serviceProvider;
     }
 
     protected override IEnumerable<Customer> GetListAction()
@@ -33,6 +32,6 @@ public class CustomersRepository: BaseModelsRepository<Customer>
     {
         return _db.Set<Customer>()
             .Include(c => c.Address)
-            .SingleOrDefault(c => c.id == id);
+            .SingleOrDefault(c => c.Id == id);
     }
 }

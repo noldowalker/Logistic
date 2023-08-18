@@ -24,70 +24,70 @@ namespace Logistic.Migrations
 
             modelBuilder.Entity("Domain.Models.Address", b =>
                 {
-                    b.Property<long>("id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
                     b.Property<string>("FullAddress")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("inactive")
+                    b.Property<bool>("Inactive")
                         .HasColumnType("boolean");
 
-                    b.HasKey("id");
+                    b.HasKey("Id");
 
                     b.ToTable("addresses");
                 });
 
             modelBuilder.Entity("Domain.Models.Customer", b =>
                 {
-                    b.Property<long>("id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("Addressid")
+                    b.Property<long?>("AddressId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("inactive")
-                        .HasColumnType("boolean");
+                    b.HasKey("Id");
 
-                    b.HasKey("id");
+                    b.HasIndex("AddressId");
 
-                    b.HasIndex("Addressid");
-
-                    b.ToTable("Customers");
+                    b.ToTable("customers");
                 });
 
             modelBuilder.Entity("Domain.Models.DeliveryPoint", b =>
                 {
-                    b.Property<long>("id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("id"));
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("Addressid")
+                    b.Property<long>("AddressId")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("Inactive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("inactive")
-                        .HasColumnType("boolean");
+                    b.HasKey("Id");
 
-                    b.HasKey("id");
-
-                    b.HasIndex("Addressid");
+                    b.HasIndex("AddressId");
 
                     b.ToTable("delivery_points");
                 });
@@ -96,7 +96,7 @@ namespace Logistic.Migrations
                 {
                     b.HasOne("Domain.Models.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("Addressid");
+                        .HasForeignKey("AddressId");
 
                     b.Navigation("Address");
                 });
@@ -105,7 +105,7 @@ namespace Logistic.Migrations
                 {
                     b.HasOne("Domain.Models.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("Addressid")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

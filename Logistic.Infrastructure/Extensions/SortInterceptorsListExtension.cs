@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 using Domain.Models;
 using Logistic.Infrastructure.Attributes;
 using Logistic.Infrastructure.Interfaces;
@@ -7,7 +8,7 @@ namespace Logistic.Infrastructure.Extensions;
 
 public static class SortInterceptorsListExtension
 {
-    public static void SortByOrder<T>(this List<IInterceptable<T>> interceptors) where T : BaseModel
+    public static void SortByOrder<T>(this List<T> interceptors) where T : class
     {
         if (!interceptors.Any())
             return;

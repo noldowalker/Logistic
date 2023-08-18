@@ -5,7 +5,7 @@ namespace Domain.Models;
 public class BaseModel
 {
     [Key, Required]
-    public long id { get; set; }
+    public long Id { get; set; }
 
-    public bool inactive { get; set; } = false;
+    public bool Inactive { get; set; } = false;
 }

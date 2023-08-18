@@ -1,24 +1,31 @@
-﻿using Domain.Interfaces;
+using Domain.Interfaces;
 using Domain.Models;
 using Domain.WorkResults;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Logistic.Infrastructure.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Infrastructure.Repositories;
 
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
     protected readonly List<IInterceptable<T>> _interceptors;
+    protected List<object> _interceptors2;
     
     protected DataBaseContext _db;
     public IWorkResult Result { get; set; }
 
-    public BaseModelsRepository(DataBaseContext db, IEnumerable<IInterceptable<T>> interceptors, IWorkResult result)
+    public BaseModelsRepository(
+        DataBaseContext db, 
+        IEnumerable<IInterceptable<T>> interceptors, 
+        IWorkResult result,  
+        IServiceProvider serviceProvider)
     {
         _db = db;
         _interceptors = interceptors.ToList();
         _interceptors.SortByOrder();
+        GetAllInterceptors(serviceProvider);
         Result = result;
     }
 
@@ -65,7 +72,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
             return null;
         }
 
-        Result.AddDebugMessage($"Запись успешно {typeof(T)} создана с Id = {entity.id}!");
+        Result.AddDebugMessage($"Запись успешно {typeof(T)} создана с Id = {entity.Id}!");
         
         return entity;
     }
@@ -85,12 +92,12 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         catch (Exception e)
         {
             Result
-                .AddInfrastructureErrorMessage($"При попытке обновления сущности {typeof(T)} с Id = {entity.id} возникла ошибка: {e.Message}");
+                .AddInfrastructureErrorMessage($"При попытке обновления сущности {typeof(T)} с Id = {entity.Id} возникла ошибка: {e.Message}");
             
             return null;
         }
 
-        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.id} успешно обновлена!");
+        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
 
         return entity;
     }
@@ -152,14 +159,15 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual IEnumerable<T> AfterGetList(IEnumerable<T> entities)
     {
+        var result = new List<T>();
         foreach (var entity in entities)
         {
-            var result = AfterGet(entity);
-            if (!result)
-                return new List<T>();
+            var isEntityMayBeReturned = AfterGet(entity);
+            if (isEntityMayBeReturned)
+                result.Add(entity);
         }
         
-        return entities;
+        return result;
     }
     
     protected virtual T? GetAction(long id)
@@ -284,4 +292,49 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     }
 
     #endregion
+
+    private void GetAllInterceptors(IServiceProvider provider)
+    {
+        _interceptors2 = new List<object>();
+        var types = GetInheritanceChain();
+        foreach (var type in types)
+        {
+            var interceptorType = typeof(IInterceptable<>).MakeGenericType(type);
+            var propertyRepo = provider.GetServices(interceptorType);
+            if (!propertyRepo.Any())
+                continue;
+            
+            _interceptors2.AddRange(propertyRepo);
+        }
+        
+        if (_interceptors2.Any())
+            _interceptors2.SortByOrder();
+    } 
+    
+    private List<Type> GetInheritanceChain()
+    {
+        Type derivedType = typeof(T);
+        Type baseType = typeof(BaseModel);
+        List<Type> chain = new List<Type>();
+
+        Type currentType = derivedType;
+
+        while (currentType != null && currentType != baseType)
+        {
+            chain.Add(currentType);
+            currentType = currentType.BaseType;
+        }
+
+        if (currentType == baseType)
+        {
+            chain.Add(currentType);
+            chain.Reverse();
+        }
+        else
+        {
+            chain.Clear();
+        }
+
+        return chain;
+    }
 }

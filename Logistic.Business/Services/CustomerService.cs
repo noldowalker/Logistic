@@ -83,9 +83,9 @@ public class CustomerService : IBusinessService<Customer>
     private async Task<Address?> GetOrCreateAddress(Address address)
     {
         Address? result;
-        if (address.id > 0)
+        if (address.Id > 0)
         {
-            result = _addressesRepository.Get(address.id);
+            result = _addressesRepository.Get(address.Id);
         }
         else
         {
