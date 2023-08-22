@@ -1,15 +1,17 @@
 ﻿using Domain.Models;
 using Domain.WorkResults;
+using Logistic.Application.Exceptions;
+using Logistic.Application.Interfaces;
 
 namespace Logistic.Application.Validators;
 
 public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
 {
-    public IWorkResult Result { get; }
+    public IBusinessActionMessageContainer Results { get; }
 
-    public BaseModelValidator(IWorkResult result)
+    public BaseModelValidator(IBusinessActionMessageContainer results)
     {
-        Result = result;
+        Results = results;
     }
 
 
@@ -51,7 +53,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
         if (entity.Id >= 1) 
             return true;
         
-        Result.AddValidationErrorMessage("При редактировании сущности необходимо допустимый id, который больше 0");
+        Results.AddError(new ValidationError("При редактировании сущности необходимо допустимый id, который больше 0"));
         return false;
 
     }
@@ -61,7 +63,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
         if (entity.Id == 0)
             return true;
         
-        Result.AddValidationErrorMessage("При создании сущности недопустимо указывать id");
+        Results.AddError(new ValidationError("При создании сущности недопустимо указывать id"));
         return false;
     }
 
@@ -70,7 +72,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
         if (!entity.Inactive)
             return true;
         
-        Result.AddValidationErrorMessage("При редактировании сущности недопустима ее деактивация, используйте для этого удаление");
+        Results.AddError(new ValidationError("При редактировании сущности недопустима ее деактивация, используйте для этого удаление"));
         return false;
     }
 
@@ -79,7 +81,7 @@ public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
         if (entity.Inactive)
             return true;
         
-        Result.AddValidationErrorMessage("При деактивации допустимо только изменение поля активированности на false");
+        Results.AddError(new ValidationError("При деактивации допустимо только изменение поля активированности на false"));
         return false;
     }
 }

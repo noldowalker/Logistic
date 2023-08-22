@@ -6,14 +6,6 @@ namespace Logistic.Filters;
 
 public class ActionResponseFilter : IActionFilter
 {
-    public IWorkResult Results { get; }
-
-    public ActionResponseFilter(IWorkResult results)
-    {
-        Results = results;
-    }
-
-    
     public void OnActionExecuting(ActionExecutingContext context)
     {
         
@@ -24,13 +16,14 @@ public class ActionResponseFilter : IActionFilter
         if (context.Result is not LogisticWebResponse result) 
             return;
         
-        result.Records = Results.Messages;
+        //ToDo: подумать нужен ли фильтр для чего-то другого
+        /*result.Records = Results.Messages;
 
         if(Results.IsBroken && Results.IsBadRequest())
             result.MarkAsBadRequest();
         
         if(Results.IsBroken && Results.IsInternalError())
-            result.MarkAsInternalError();
+            result.MarkAsInternalError();*/
         
         context.Result = result.AsObjectResult();
     }

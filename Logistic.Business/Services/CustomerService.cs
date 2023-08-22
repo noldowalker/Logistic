@@ -1,12 +1,14 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
-using Domain.WorkResults;
+using Logistic.Application.Exceptions;
+using Logistic.Application.Interfaces;
+using Logistic.Application.WorkResult;
 
 namespace Logistic.Application.Services;
 
 public class CustomerService : IBusinessService<Customer>
 {
-    public IWorkResult Results { get; set; }
+    public IBusinessActionMessageContainer Results { get; set; }
     
     private IBaseModelsRepository<Customer> _customersRepository;
     private IBaseModelsRepository<Address> _addressesRepository;
@@ -18,22 +20,23 @@ public class CustomerService : IBusinessService<Customer>
         IBaseModelsRepository<Address> addressesRepository,
         IValidatable<Customer> customerValidator,
         IValidatable<Address> addressValidator, 
-        IWorkResult results)
+        IBusinessActionMessageContainer resultses)
     {
         _customersRepository = customersRepository;
         _customerValidator = customerValidator;
         _addressValidator = addressValidator;
         _addressesRepository = addressesRepository;
-        Results = results;
+        Results = resultses;
     }
     
-    public List<Customer>? GetListOfCustomers()
+    public BusinessResult<Customer> GetListOfCustomers()
     {
-        var customers = _customersRepository.GetList();
-        return customers.ToList();
+        var actionResult = _customersRepository.GetList();
+        
+        return new BusinessResult<Customer>(actionResult);
     }
 
-    public async Task<List<Customer>?> RegisterNewCustomers(List<Customer> customers)
+    public async Task<BusinessResult<Customer>> RegisterNewCustomers(List<Customer> customers)
     {
         var createdEntities = new List<Customer>();
         foreach (var customer in customers)
@@ -47,37 +50,39 @@ public class CustomerService : IBusinessService<Customer>
                 customer.Address = await GetOrCreateAddress(customer.Address);
             
             var result = await _customersRepository.Create(customer);
-            if (result!= null)
-                createdEntities.Add(result);
+            if (result.IsSuccessful)
+                createdEntities.AddRange(result.Data);
+            
+            Results.Messages.AddRange(result.Messages);
         }
 
-        return createdEntities;
+        return new BusinessResult<Customer>(createdEntities, Results.Messages, !Results.IsBroken);
     }
 
-    public async Task<List<Customer>?> UpdateCustomers(List<Customer> customers)
+    public async Task<BusinessResult<Customer>> UpdateCustomers(List<Customer> customers)
     {
-        List<Customer> result = new List<Customer>();
+        List<Customer> updatedEntities = new List<Customer>();
         
         foreach (var customer in customers)
         {
             if (!_customerValidator.IsValidForUpdate(customer))
             {
-                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.Result);
-                Results.AddBusinessErrorMessage(error);
+                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.Results);
+                Results.AddError(new BusinessError(error));
                 continue;
             }
 
             if (customer.Address != null)
                 customer.Address = await GetOrCreateAddress(customer.Address);
             
-            await _customersRepository.Update(customer);
+            var result = await _customersRepository.Update(customer);
+            if (result.IsSuccessful)
+                updatedEntities.AddRange(result.Data);
             
-            result.Add(customer);
+            Results.Messages.AddRange(result.Messages);
         }
-        
-        await _customersRepository.SaveAsync();
 
-        return result;
+        return new BusinessResult<Customer>(updatedEntities, Results.Messages, !Results.IsBroken);
     }
 
     private async Task<Address?> GetOrCreateAddress(Address address)
@@ -85,18 +90,17 @@ public class CustomerService : IBusinessService<Customer>
         Address? result;
         if (address.Id > 0)
         {
-            result = _addressesRepository.Get(address.Id);
+            result = _addressesRepository.Get(address.Id).Data.First();
         }
         else
         {
             if (!_addressValidator.IsValidForCreate(address))
             {
-                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.Result);
-                Results.AddBusinessErrorMessage(error);
+                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.Results);
+                Results.AddError(new BusinessError(error));
                 return null;
             }
-            result = await _addressesRepository.Create(address);
-            await _addressesRepository.SaveAsync();
+            result = (await _addressesRepository.Create(address)).Data.First();
         }
 
         return result;

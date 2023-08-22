@@ -7,7 +7,7 @@ namespace Logistic.Infrastructure.Interfaces;
 
 public interface IInterceptable<T> where T : BaseModel
 {
-    public IWorkResult Results { get; }
+    public IInfrastructureActionMessageContainer Resultses { get; }
     public bool BeforeRead(T entity);
     public bool AfterRead(T entity);
     public bool BeforeCreate(T entity);

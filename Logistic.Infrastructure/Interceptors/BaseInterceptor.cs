@@ -6,7 +6,7 @@ namespace Logistic.Infrastructure.Interceptors;
 
 public class BaseInterceptor : IInterceptable<BaseModel>
 {
-    public IWorkResult Results { get; }
+    public IInfrastructureActionMessageContainer Resultses { get; }
     public bool BeforeRead(BaseModel entity)
     {
         return true;

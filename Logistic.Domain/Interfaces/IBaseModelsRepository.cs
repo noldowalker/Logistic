@@ -5,11 +5,11 @@ namespace Domain.Interfaces;
 
 public interface IBaseModelsRepository<T>: IDisposable where T : BaseModel
 {
-    public IWorkResult Result { get; set; }
-    IEnumerable<T> GetList();
-    T? Get(long id);
-    Task<T?> Create(T entity);
-    Task<T?> Update(T entity);
-    Task<T?> Delete(long id);
+    public IActionMessageContainer Results { get; set; }
+    IActionResult<T> GetList();
+    IActionResult<T> Get(long id);
+    Task<IActionResult<T>> Create(T entity);
+    Task<IActionResult<T>> Update(T entity);
+    Task<IActionResult<T>> Delete(long id);
     Task SaveAsync();
 }

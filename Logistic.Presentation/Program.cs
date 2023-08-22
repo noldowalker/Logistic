@@ -11,16 +11,17 @@ if (connectionString != null)
 else
     throw new Exception("Не указана строка подключения");
 
-builder.Services.AddInfrastructureDependencies();
 builder.Services.AddInfrastructureGeneration();
+builder.Services.AddInfrastructureDependencies();
 
-builder.Services.AddBusinessDependencies();
 builder.Services.AddBusinessGeneration();
+builder.Services.AddBusinessDependencies();
 
-builder.Services.AddPresentationDependencies();
 
 builder.Services.AddControllers(options => options.Filters.Add(typeof(ActionResponseFilter)));
 builder.Services.AddControllersGeneration();
+builder.Services.AddPresentationDependencies();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

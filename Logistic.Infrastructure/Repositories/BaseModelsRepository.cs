@@ -1,9 +1,11 @@
 using Domain.Interfaces;
 using Domain.Models;
 using Domain.WorkResults;
+using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Logistic.Infrastructure.Extensions;
+using Logistic.Infrastructure.WorkResult;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Infrastructure.Repositories;
@@ -14,19 +16,19 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     protected List<object> _interceptors2;
     
     protected DataBaseContext _db;
-    public IWorkResult Result { get; set; }
+    public IActionMessageContainer Results { get; set; }
 
     public BaseModelsRepository(
         DataBaseContext db, 
         IEnumerable<IInterceptable<T>> interceptors, 
-        IWorkResult result,  
+        IInfrastructureActionMessageContainer results,  
         IServiceProvider serviceProvider)
     {
         _db = db;
         _interceptors = interceptors.ToList();
         _interceptors.SortByOrder();
         GetAllInterceptors(serviceProvider);
-        Result = result;
+        Results = results;
     }
 
     public virtual void Dispose()
@@ -36,97 +38,91 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     }
 
 
-    public IEnumerable<T> GetList()
+    public IActionResult<T> GetList()
     {
         //ToDo: придумать способ фильтрации и внедрить, для него должен быть BeforeInterceptor
-        var result = GetListAction();
-        return AfterGetList(result);
+        var data = GetListAction();
+        data = AfterGetList(data);
+
+        return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
     }
 
-    public T? Get(long id)
+    public IActionResult<T> Get(long id)
     {
         //ToDo: придумать способ фильтрации и внедрить, для него должен быть BeforeInterceptor
+        var data = new List<T>();
         var result = GetAction(id);
-        if (!AfterGet(result))
-            return null;
+        if (AfterGet(result))
+            data.Add(result);
         
-        return result;
+        return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
     }
 
-    public async Task<T?> Create(T entity)
+    public async Task<IActionResult<T>> Create(T entity)
     {
-        try
-        {
-            if (!BeforeCreate(entity))
-                return null;
-            if (!CreateAction(entity))
-                return null;
-            if (!AfterCreate(entity))
-                return null;
-            await SaveAsync();
-        }
-        catch (Exception e)
-        {
-            Result.AddInfrastructureErrorMessage($"При попытке создания сущности {typeof(T)} возникла ошибка: {e.Message}");
-            
-            return null;
-        }
-
-        Result.AddDebugMessage($"Запись успешно {typeof(T)} создана с Id = {entity.Id}!");
+        var data = new List<T>();
         
-        return entity;
-    }
-
-    public virtual async Task<T?> Update(T entity)
-    {
         try
         {
-            if (!BeforeUpdate(entity))
-                return null;
-            if (!UpdateAction(entity))
-                return null;
-            if (!AfterUpdate(entity))
-                return null;
-            await SaveAsync();
+            if (BeforeCreate(entity) && CreateAction(entity) && AfterCreate(entity))
+            {
+                await SaveAsync();
+                data.Add(entity);
+            }
         }
         catch (Exception e)
         {
-            Result
-                .AddInfrastructureErrorMessage($"При попытке обновления сущности {typeof(T)} с Id = {entity.Id} возникла ошибка: {e.Message}");
-            
-            return null;
+            Results.AddError(new InfrastructureError($"При попытке создания сущности {typeof(T)} возникла ошибка: {e.Message}"));
         }
 
-        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
-
-        return entity;
+        //ToDo: подумать над енам с уровнями Result.AddNotification($"Запись успешно {typeof(T)} создана с Id = {entity.Id}!");
+        return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
     }
 
-    public virtual async Task<T?> Delete(long id)
+    public virtual async Task<IActionResult<T>> Update(T entity)
     {
-        T? entity;
+        var data = new List<T>();
+        
         try
         {
-            entity = _db.Set<T>().Find(id);
-
-            if (!BeforeDelete(entity))
-                return null;
-            if (!DeleteAction(entity))
-                return null;
-            if (!AfterDelete(entity))
-                return null;
-            await SaveAsync();
+            if (BeforeUpdate(entity) && UpdateAction(entity) && AfterUpdate(entity))
+            {
+                await SaveAsync();
+                data.Add(entity);
+            }
         }
         catch (Exception e)
         {
-            Result.AddInfrastructureErrorMessage($"При попытке удаления сущности {typeof(T)} с Id = {id} возникла ошибка: {e.Message}");
-            
-            return null;
+            Results
+                .AddError(new InfrastructureError($"При попытке обновления сущности {typeof(T)} с Id = {entity.Id} возникла ошибка: {e.Message}"));
         }
 
-        Result.AddDebugMessage($"Запись {typeof(T)} с Id = {id} успешно удалена!");
+        // ToDo: подумать над енам с уровнями  Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
+        return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
+    }
 
-        return entity;
+    public virtual async Task<IActionResult<T>> Delete(long id)
+    {
+        var data = new List<T>();
+        
+        try
+        {
+            var entity = await _db.Set<T>().FindAsync(id);
+            
+            if (entity != null && BeforeDelete(entity) && DeleteAction(entity) && AfterDelete(entity))
+            {
+                await SaveAsync();
+                data.Add(entity);
+            }
+        }
+        catch (Exception e)
+        {
+            Results
+                .AddError(new InfrastructureError($"При попытке удаления сущности {typeof(T)} с Id = {id} возникла ошибка: {e.Message}"));
+        }
+
+        // ToDo: подумать над енам с уровнями  Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
+        return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
     }
     
     public virtual void Dispose(bool disposing)

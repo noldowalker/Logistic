@@ -4,22 +4,31 @@ using Logistic.Application.Services;
 using Logistic.Dto.Requests;
 using Logistic.Dto.Responses;
 using Logistic.Infrastructure.Extensions;
+using Logistic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logistic.Controllers;
 
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+public sealed class UsePresentationResultContainerAttribute : Attribute
+{
+    // Можете добавить дополнительные свойства или логику, если необходимо
+}
+
 [ApiController]
 [Route("[controller]/[action]")]
+[UsePresentationResultContainer]
 public class CustomerController : ControllerBase
 {
     private readonly ILogger<CustomerController> _logger;
     private readonly CustomerService _customerService;
-    public IWorkResult Results { get; }
-    public CustomerController(ILogger<CustomerController> logger, CustomerService customerService, IWorkResult results)
+    
+    public IPresentationActionMessageContainer Resultses { get; }
+    public CustomerController(ILogger<CustomerController> logger, CustomerService customerService, IPresentationActionMessageContainer resultses)
     {
         _logger = logger;
         _customerService = customerService;
-        Results = results;
+        Resultses = resultses;
     }
 
     [HttpGet]

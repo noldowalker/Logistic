@@ -18,10 +18,16 @@ public static class Infrastructure
         services.AddDbContext<DataBaseContext> (o => o.UseNpgsql(connectionString, b => b.MigrationsAssembly(migrationsAssembly)));
     }
 
+    private static readonly List<Type> InfrastructureTypesForResultContainer = new List<Type>()
+    {
+        typeof(IBaseModelsRepository<>),
+        typeof(IInterceptable<>),
+    };
+        
     public static void AddInfrastructureDependencies(this IServiceCollection services)
     {
         services.AddScoped<IBaseModelsRepository<Customer>, CustomersRepository>();
-        services.AddScoped<IWorkResult, WorkResultContainer>();
+        services.AddScoped<IInfrastructureActionMessageContainer, InfrastructureMessagesContainer>();
     }
 
     public static void AddInfrastructureGeneration(this IServiceCollection services)

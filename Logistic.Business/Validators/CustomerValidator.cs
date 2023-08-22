@@ -1,12 +1,14 @@
 ﻿using System.Text.RegularExpressions;
 using Domain.Models;
 using Domain.WorkResults;
+using Logistic.Application.Exceptions;
+using Logistic.Application.Interfaces;
 
 namespace Logistic.Application.Validators;
 
 public class CustomerValidator : BaseModelValidator<Customer>
 {
-    public CustomerValidator(IWorkResult result) : base(result) {}
+    public CustomerValidator(IBusinessActionMessageContainer results) : base(results) {}
     
     public override bool IsValidForCreate(Customer entity)
     {
@@ -21,7 +23,7 @@ public class CustomerValidator : BaseModelValidator<Customer>
         if (isMatch)
             return true;
         
-        Result.AddValidationErrorMessage("Имя может включать в себя только кириллические или латинские символы.");
+        Results.AddError(new ValidationError("Имя может включать в себя только кириллические или латинские символы."));
         return false;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Domain.Models;
 using Domain.WorkResults;
 using Logistic.Infrastructure.Attributes;
+using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 
 namespace Logistic.Infrastructure.Interceptors;
@@ -8,12 +9,12 @@ namespace Logistic.Infrastructure.Interceptors;
 [Order(2)]
 public class CustomerAdditionalInterceptor : IInterceptable<Customer>
 {
-    public CustomerAdditionalInterceptor(IWorkResult results)
+    public CustomerAdditionalInterceptor(IInfrastructureActionMessageContainer resultses)
     {
-        Results = results;
+        Resultses = resultses;
     }
 
-    public IWorkResult Results { get; }
+    public IInfrastructureActionMessageContainer Resultses { get; }
 
     public bool BeforeRead(Customer entity)
     {
@@ -31,7 +32,7 @@ public class CustomerAdditionalInterceptor : IInterceptable<Customer>
         if (entity.Name.ToLower() != "петр")
             return true;
 
-        Results.AddInfrastructureErrorMessage("Петям тут не место!");
+        Resultses.AddError(new InfrastructureError("Петям тут не место!"));
         return false;
     }
 
@@ -45,7 +46,7 @@ public class CustomerAdditionalInterceptor : IInterceptable<Customer>
         if (entity.Name.ToLower() != "петр")
             return true;
 
-        Results.AddInfrastructureErrorMessage("Петям тут не место!");
+        Resultses.AddError(new InfrastructureError("Петям тут не место!"));
         return false;
     }
 

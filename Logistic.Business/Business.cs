@@ -1,7 +1,10 @@
 ﻿using Domain.Attributes;
 using Domain.Models;
+using Domain.WorkResults;
+using Logistic.Application.Interfaces;
 using Logistic.Application.Services;
 using Logistic.Application.Validators;
+using Logistic.Application.WorkResult;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Application;
@@ -29,9 +32,17 @@ public static class Business
 
     }
     
+    private static readonly List<Type> BusinessTypesForResultContainer = new List<Type>()
+    {
+        typeof(IBusinessService<>),
+        typeof(IValidatable<>),
+    };
+    
     public static void AddBusinessDependencies(this IServiceCollection services)
     {
         services.AddScoped<CustomerService, CustomerService>();
+        services.AddScoped<IBusinessActionMessageContainer, BusinessMessagesContainer>();
+
         AddValidators(services);
     }
 

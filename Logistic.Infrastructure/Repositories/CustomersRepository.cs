@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Domain.WorkResults;
+using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +13,7 @@ public class CustomersRepository: BaseModelsRepository<Customer>
         DataBaseContext db, 
         IEnumerable<IInterceptable<Customer>> interceptors, 
         IServiceProvider serviceProvider, 
-        IWorkResult result) : base(db, interceptors, result, serviceProvider)
+        IInfrastructureActionMessageContainer results) : base(db, interceptors, results, serviceProvider)
     {
     }
 
@@ -23,8 +24,8 @@ public class CustomersRepository: BaseModelsRepository<Customer>
             .Include(c => c.Address)
             .ToList();
         
-        Result.AddNotificationMessage("Тестовый все окей!");
-        Result.AddInfrastructureErrorMessage("Тестовая ошибка инфраструктуры");
+        Results.AddNotification("Тестовый все окей!");
+        Results.AddError(new InfrastructureError("Тестовая ошибка инфраструктуры"));
         return result;
     }
 

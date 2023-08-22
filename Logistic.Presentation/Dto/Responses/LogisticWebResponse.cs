@@ -1,5 +1,7 @@
 ﻿using Domain.WorkResults;
 using Logistic.Application;
+using Logistic.Infrastructure.WorkResult;
+using Logistic.WorkResult;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logistic.Dto.Responses;
@@ -7,7 +9,7 @@ namespace Logistic.Dto.Responses;
 public class LogisticWebResponse : ActionResult
 {
     public List<object> Data { get; set; }
-    public List<WorkMessage> Records { get; set; } = new List<WorkMessage>();
+    public List<ActionMessage> Records { get; set; } = new List<ActionMessage>();
     public List<string> Flags { get; set; } = new List<string>();
     private int _statusCode;
     
@@ -42,13 +44,18 @@ public class LogisticWebResponse : ActionResult
     }
     
 
-    public static LogisticWebResponse CreateWithNotification(string notificationText, List<WorkMessage> errors)
+    public static LogisticWebResponse CreateWithNotification(string notificationText, List<ActionMessage> errors)
     {
-        var record = WorkMessage.CreateNotification(notificationText);
+        var record = new PresentationActionMessage()
+        {
+            Text = notificationText
+        };
+        
         var result = new LogisticWebResponse()
         {
             Records = errors
         }; 
+        
         result.Records.Add(record);
         return result;
     }
