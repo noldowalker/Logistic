@@ -9,52 +9,51 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Logistic.Controllers;
 
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public sealed class UsePresentationResultContainerAttribute : Attribute
-{
-    // Можете добавить дополнительные свойства или логику, если необходимо
-}
 
 [ApiController]
 [Route("[controller]/[action]")]
-[UsePresentationResultContainer]
 public class CustomerController : ControllerBase
 {
     private readonly ILogger<CustomerController> _logger;
     private readonly CustomerService _customerService;
     
-    public IPresentationActionMessageContainer Resultses { get; }
-    public CustomerController(ILogger<CustomerController> logger, CustomerService customerService, IPresentationActionMessageContainer resultses)
+    public IPresentationActionMessageContainer Results { get; }
+    public CustomerController(ILogger<CustomerController> logger, CustomerService customerService, IPresentationActionMessageContainer results)
     {
         _logger = logger;
         _customerService = customerService;
-        Resultses = resultses;
+        Results = results;
     }
 
     [HttpGet]
     public LogisticWebResponse GetAllCustomers()
     {
         var result = _customerService.GetListOfCustomers();
-        var data = result.ConvertToObjectsList();
-
-        return new LogisticWebResponse(data);
+        var data = result.Data.ConvertToObjectsList();
+        Results.AddBusinessResults(result.Messages, result.IsSuccessful);
+        
+        return new LogisticWebResponse(data, Results);
     }
     
     [HttpPost]
     public async Task<LogisticWebResponse> Create(LogisticWebRequestWithEntityList<Customer> form)
     {
         var customers = form.Data;
-        var createdRecords = await _customerService.RegisterNewCustomers(customers);
-
-        return new LogisticWebResponse(createdRecords.ConvertToObjectsList());
+        var result = await _customerService.RegisterNewCustomers(customers);
+        var data = result.Data.ConvertToObjectsList();
+        Results.AddBusinessResults(result.Messages, result.IsSuccessful);
+        
+        return new LogisticWebResponse(data, Results);
     }
     
     [HttpPost]
     public async Task<LogisticWebResponse> Change(LogisticWebRequestWithEntityList<Customer> form)
     {
         var customers = form.Data;
-        var updatedRecords = await _customerService.UpdateCustomers(customers);
-
-        return new LogisticWebResponse(updatedRecords.ConvertToObjectsList());
+        var result = await _customerService.UpdateCustomers(customers);
+        var data = result.Data.ConvertToObjectsList();
+        Results.AddBusinessResults(result.Messages, result.IsSuccessful);
+        
+        return new LogisticWebResponse(data, Results);
     }
 }

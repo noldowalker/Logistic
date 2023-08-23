@@ -1,5 +1,5 @@
 ﻿using Domain.WorkResults;
-using Logistic.Infrastructure.WorkResult;
+using Logistic.Application.Exceptions;
 using Logistic.Interfaces;
 
 namespace Logistic.WorkResult;
@@ -33,5 +33,22 @@ public class PresentationMessagesContainer : IPresentationActionMessageContainer
         
         Messages.Add(message);
         _isBroken = true;
+    }
+
+    public int GetStatusCode()
+    {
+        if (!IsBroken)
+            return 200;
+
+        if (Messages.Any(m => m.Error is BusinessError or ValidationError))
+            return 400;
+
+        return 500;
+    }
+
+    public void AddBusinessResults(List<ActionMessage> messages, bool isSuccessful)
+    {
+        Messages.AddRange(messages);
+        _isBroken = !isSuccessful;
     }
 }

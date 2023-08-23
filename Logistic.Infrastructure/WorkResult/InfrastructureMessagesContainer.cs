@@ -1,4 +1,5 @@
 ﻿using Domain.WorkResults;
+using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 
 namespace Logistic.Infrastructure.WorkResult;
@@ -23,6 +24,9 @@ public class InfrastructureMessagesContainer : IInfrastructureActionMessageConta
     {
         if (string.IsNullOrEmpty(errorUserText))
             errorUserText = exception.Message;
+        
+        if (exception is InfrastructureError infrastructureError)
+            errorUserText = infrastructureError.UserMessage;
         
         var message = new InfrastructureActionMessage()
         {

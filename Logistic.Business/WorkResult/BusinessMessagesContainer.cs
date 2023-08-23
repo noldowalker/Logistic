@@ -1,6 +1,5 @@
 ﻿using Domain.WorkResults;
 using Logistic.Application.Interfaces;
-using Logistic.Infrastructure.WorkResult;
 
 namespace Logistic.Application.WorkResult;
 
@@ -33,5 +32,11 @@ public class BusinessMessagesContainer : IBusinessActionMessageContainer
         
         Messages.Add(message);
         _isBroken = true;
+    }
+
+    public void AddInfrastructureResults(List<ActionMessage> results, bool isSuccessful)
+    {
+        Messages.AddRange(results);
+        _isBroken = !isSuccessful;
     }
 }
