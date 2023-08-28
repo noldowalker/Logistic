@@ -1,8 +1,8 @@
-﻿Logistic.Business/bin/
-Logistic.Domain/bin/
-Logistic.Infrastructure/bin/
-Logistic.Presentation/bin/
-Logistic.Business/obj/Debug/
-Logistic.Domain/obj/Debug/
-Logistic.Infrastructure/obj/Debug/
-Logistic.Presentation/obj/Debug/
+﻿Logistic/Logistic.Application/bin/
+Logistic/Logistic.Domain/bin/
+Logistic/Logistic.Infrastructure/bin/
+Logistic/Logistic.WebApi/bin/
+Logistic/Logistic.Application/obj/Debug/
+Logistic/Logistic.Domain/obj/Debug/
+Logistic/Logistic.Infrastructure/obj/Debug/
+Logistic/Logistic.WebApi/obj/Debug/
