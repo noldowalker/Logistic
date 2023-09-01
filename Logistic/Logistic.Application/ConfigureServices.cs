@@ -1,5 +1,6 @@
 ﻿using Domain.Attributes;
 using Domain.Models;
+using FluentValidation;
 using Logistic.Application.Interfaces;
 using Logistic.Application.Services;
 using Logistic.Application.Validators;
@@ -51,28 +52,29 @@ public static class ConfigureServices
 
     private static void AddValidators(IServiceCollection services)
     {
-        services.AddScoped<IValidatable<Customer>, CustomerValidator>();
+        services.AddScoped<AbstractValidator<Customer>, CustomerValidator>();
     }
     
     private static void AddValidatorsForType(IServiceCollection services, Type baseModelType)
     {
-        // тут важно искать по конкретному типу, т.е. указать какой именно дженерик нас интересует. Иначе в сборке не найдет.
-        var interfaceType = typeof(IValidatable<>).MakeGenericType(baseModelType); 
+        var validatorType = typeof(AbstractValidator<>).MakeGenericType(baseModelType); 
         var validatorTypes = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(a => a.GetTypes())
-            .Where(t => interfaceType.IsAssignableFrom(t));
+            .Where(t => validatorType.IsAssignableFrom(t));
         
         if (validatorTypes.Any())
         {
             foreach (var type in validatorTypes)
             {
-                services.AddScoped(interfaceType, type);
+                services.AddScoped(validatorType, type);
             }
         }
         else
         {
-            services.AddScoped(interfaceType, typeof(BaseModelValidator<>).MakeGenericType(baseModelType));
+            services.AddScoped(validatorType, typeof(BaseModelValidator<>).MakeGenericType(baseModelType));
         }
     }
 }
+
+

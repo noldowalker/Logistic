@@ -1,87 +1,43 @@
 ﻿using Domain.Models;
 using Domain.WorkResults;
+using FluentValidation;
 using Logistic.Application.Exceptions;
 using Logistic.Application.Interfaces;
 
 namespace Logistic.Application.Validators;
 
-public class BaseModelValidator<T> : IValidatable<T> where T : BaseModel
+public class BaseModelValidator<T> : AbstractValidator<T> where T : BaseModel
 {
-    public IBusinessActionMessageContainer Results { get; }
-
-    public BaseModelValidator(IBusinessActionMessageContainer results)
+    public BaseModelValidator()
     {
-        Results = results;
-    }
-
-
-    public virtual bool IsValidForCreate(T entity)
-    {
-        var functions = new List<Func<T, bool>>
+        RuleSet("Create", () =>
         {
-            IdMustNotExists,
-            NotDeactivate
-        };
-        
-        return functions.TrueForAll(f => f(entity));
-    }
+            RuleFor(b => b.Id)
+                .Must(id => id == 0)
+                .WithMessage("Id должен отсутствовать или быть равен 0 для создания сущности.");
+            
+            RuleFor(b => b.Inactive)
+                .NotEqual(true)
+                .WithMessage("Поле Inactive может быть установлено в true только при операции удаления");
+        });
 
-    public virtual bool IsValidForUpdate(T entity)
-    {
-        var functions = new List<Func<T, bool>>
+        RuleSet("Update", () =>
         {
-            IdMustExists,
-            NotDeactivate
-        };
+            RuleFor(b => b.Id)
+                .NotNull().WithMessage("Id должен быть указан для редактирования сущности")
+                .GreaterThan(0).WithMessage("Id должен быть больше 0 при создании сущности");
+            
+            RuleFor(b => b.Inactive)
+                .NotEqual(true)
+                .WithMessage("Поле Inactive может быть установлено в true только при операции удаления");
+        });
         
-        return functions.TrueForAll(f => f(entity));
-    }
-
-    public virtual bool IsValidForDelete(T entity)
-    {
-        var functions = new List<Func<T, bool>>
+        RuleSet("Delete", () =>
         {
-            IdMustExists,
-            ExpectDeactivation
-        };
-        
-        return functions.TrueForAll(f => f(entity));
-    }
-
-    private bool IdMustExists(T entity)
-    {
-        if (entity.Id >= 1) 
-            return true;
-        
-        Results.AddError(new ValidationError("При редактировании сущности необходимо допустимый id, который больше 0"));
-        return false;
-
+            RuleFor(b => b.Inactive)
+                .Equal(true)
+                .WithMessage("При удалении поле Inactive должно устанавливаться в значение true");
+        });
     }
     
-    private bool IdMustNotExists(T entity)
-    {
-        if (entity.Id == 0)
-            return true;
-        
-        Results.AddError(new ValidationError("При создании сущности недопустимо указывать id"));
-        return false;
-    }
-
-    private bool NotDeactivate(T entity)
-    {
-        if (!entity.Inactive)
-            return true;
-        
-        Results.AddError(new ValidationError("При редактировании сущности недопустима ее деактивация, используйте для этого удаление"));
-        return false;
-    }
-
-    private bool ExpectDeactivation(T entity)
-    {
-        if (entity.Inactive)
-            return true;
-        
-        Results.AddError(new ValidationError("При деактивации допустимо только изменение поля активированности на false"));
-        return false;
-    }
 }

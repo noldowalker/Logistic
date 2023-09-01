@@ -1,4 +1,6 @@
 ﻿using Domain.WorkResults;
+using FluentValidation.Results;
+using Logistic.Application.Exceptions;
 using Logistic.Application.Interfaces;
 
 namespace Logistic.Application.WorkResult;
@@ -38,5 +40,21 @@ public class BusinessMessagesContainer : IBusinessActionMessageContainer
     {
         Messages.AddRange(results);
         _isBroken = !isSuccessful;
+    }
+
+    public void ConvertFromValidation(List<ValidationFailure> validationFailures)
+    {
+        foreach (var validationFailure in validationFailures)
+        {
+            var message = new BusinessActionMessage()
+            {
+                Text = validationFailure.ErrorMessage,
+                Error = new ValidationError(validationFailure.ErrorMessage)
+            };
+            
+            Messages.Add(message);
+        }
+        
+        _isBroken = true;
     }
 }

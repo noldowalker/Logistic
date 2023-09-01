@@ -3,27 +3,18 @@ using Domain.Models;
 using Domain.WorkResults;
 using Logistic.Application.Exceptions;
 using Logistic.Application.Interfaces;
+using FluentValidation;
 
 namespace Logistic.Application.Validators;
 
-public class CustomerValidator : BaseModelValidator<Customer>
+public class CustomerValidator : AbstractValidator<Customer> 
 {
-    public CustomerValidator(IBusinessActionMessageContainer results) : base(results) {}
-    
-    public override bool IsValidForCreate(Customer entity)
+    public CustomerValidator()
     {
-        var result = base.IsValidForCreate(entity);
-        return  result && CheckName(entity);
-    }
-
-   
-    private bool CheckName(Customer entity)
-    {
-        var isMatch = entity.Name != null && Regex.IsMatch(entity.Name, @"^[а-яА-Я\sa-zA-z]+$");
-        if (isMatch)
-            return true;
+        Include(new BaseModelValidator<Customer>());
         
-        Results.AddError(new ValidationError("Имя может включать в себя только кириллические или латинские символы."));
-        return false;
+        RuleFor(customer => customer.Name)
+            .NotNull().WithMessage("Имя не указано!")
+            .Matches(@"^[а-яА-Яa-zA-Z\s]+$").WithMessage("Имя может включать в себя только кириллические или латинские символы.");
     }
 }

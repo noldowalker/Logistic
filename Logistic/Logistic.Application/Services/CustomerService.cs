@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using Domain.Models;
+using FluentValidation;
 using Logistic.Application.Exceptions;
 using Logistic.Application.Interfaces;
 using Logistic.Application.WorkResult;
@@ -12,14 +13,14 @@ public class CustomerService : IBusinessService<Customer>
     
     private IBaseModelsRepository<Customer> _customersRepository;
     private IBaseModelsRepository<Address> _addressesRepository;
-    private IValidatable<Customer> _customerValidator;
-    private IValidatable<Address> _addressValidator;
-    
+    private AbstractValidator<Customer> _customerValidator;
+    private AbstractValidator<Address> _addressValidator;
+
     public CustomerService(
         IBaseModelsRepository<Customer> customersRepository, 
         IBaseModelsRepository<Address> addressesRepository,
-        IValidatable<Customer> customerValidator,
-        IValidatable<Address> addressValidator, 
+        AbstractValidator<Customer> customerValidator,
+        AbstractValidator<Address> addressValidator,
         IBusinessActionMessageContainer resultses)
     {
         _customersRepository = customersRepository;
@@ -41,7 +42,8 @@ public class CustomerService : IBusinessService<Customer>
         var createdEntities = new List<Customer>();
         foreach (var customer in customers)
         {
-            if (!_customerValidator.IsValidForCreate(customer))
+            var validationResult = _customerValidator.Validate(customer);
+            if (!validationResult.IsValid)
             {
                 continue;
             }
@@ -65,10 +67,10 @@ public class CustomerService : IBusinessService<Customer>
         
         foreach (var customer in customers)
         {
-            if (!_customerValidator.IsValidForUpdate(customer))
+            var validationResult = _customerValidator.Validate(customer, options => options.IncludeRuleSets("Update"));
+            if (!validationResult.IsValid)
             {
-                var error = $"не удалось изменить {customer.Name} из-за ошибок валидации: " + String.Join(";", _customerValidator.Results);
-                Results.AddError(new BusinessError(error));
+                
                 continue;
             }
 
@@ -94,10 +96,9 @@ public class CustomerService : IBusinessService<Customer>
         }
         else
         {
-            if (!_addressValidator.IsValidForCreate(address))
+            var validationResult = _addressValidator.Validate(address, options => options.IncludeRuleSets("Create"));
+            if (!validationResult.IsValid)
             {
-                var error = $"не удалось создать вложенный адрес из-за ошибок валидации: " + String.Join(";", _customerValidator.Results);
-                Results.AddError(new BusinessError(error));
                 return null;
             }
             result = (await _addressesRepository.Create(address)).Data.First();
