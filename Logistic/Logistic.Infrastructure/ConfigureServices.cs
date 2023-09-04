@@ -79,6 +79,7 @@ public static class ConfigureServices
     private static void AddInterceptorsForType(IServiceCollection services, Type baseModelType)
     {
         // тут важно искать по конкретному типу, т.е. указать какой именно дженерик нас интересует. Иначе в сборке не найдет.
+        //ToDo: реализовать подтягивание по цепочке типов, а не по конкретному, как в валидаторах.
         var interfaceType = typeof(IInterceptable<>).MakeGenericType(baseModelType); 
         var interceptorTypes = AppDomain.CurrentDomain
             .GetAssemblies()

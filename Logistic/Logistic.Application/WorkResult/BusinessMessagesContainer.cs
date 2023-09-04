@@ -36,6 +36,12 @@ public class BusinessMessagesContainer : IBusinessActionMessageContainer
         _isBroken = true;
     }
 
+    public void AddBusinessError(string errorUserText)
+    {
+        var error = new BusinessError(errorUserText);
+        AddError(error);
+    }
+    
     public void AddInfrastructureResults(List<ActionMessage> results, bool isSuccessful)
     {
         Messages.AddRange(results);

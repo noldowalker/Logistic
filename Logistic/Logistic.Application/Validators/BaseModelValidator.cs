@@ -10,6 +10,11 @@ public class BaseModelValidator<T> : AbstractValidator<T> where T : BaseModel
 {
     public BaseModelValidator()
     {
+        RuleSet("Common", () =>
+        {
+            // Рулсет для общих правил которые выполняются всегда.
+        });
+        
         RuleSet("Create", () =>
         {
             RuleFor(b => b.Id)

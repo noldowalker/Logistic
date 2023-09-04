@@ -24,8 +24,8 @@ public class CustomersRepository: BaseModelsRepository<Customer>
             .Include(c => c.Address)
             .ToList();
         
-        Results.AddNotification("Тестовый все окей!");
-        Results.AddError(new InfrastructureError("Тестовая ошибка инфраструктуры"));
+        // Results.AddNotification("Тестовый все окей!");
+        // Results.AddError(new InfrastructureError("Тестовая ошибка инфраструктуры"));
         return result;
     }
 

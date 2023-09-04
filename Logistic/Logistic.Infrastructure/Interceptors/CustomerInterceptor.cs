@@ -23,7 +23,6 @@ public class CustomerInterceptor : IInterceptable<Customer>
 
     public bool AfterRead(Customer entity)
     {
-        entity.Name += " INTERCEPTED 1";
         return true;
     }
 

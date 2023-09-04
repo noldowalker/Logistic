@@ -47,10 +47,21 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<LogisticWebResponse> Change(LogisticWebRequestWithEntityList<Customer> form)
+    public async Task<LogisticWebResponse> Update(LogisticWebRequestWithEntityList<Customer> form)
     {
         var customers = form.Data;
         var result = await _customerService.UpdateCustomers(customers);
+        var data = result.Data.ConvertToObjectsList();
+        Results.AddBusinessResults(result.Messages, result.IsSuccessful);
+        
+        return new LogisticWebResponse(data, Results);
+    }
+    
+    [HttpPost]
+    public async Task<LogisticWebResponse> Delete(LogisticWebRequestWithEntityList<Customer> form)
+    {
+        var customers = form.Data;
+        var result = await _customerService.DeleteCustomers(customers);
         var data = result.Data.ConvertToObjectsList();
         Results.AddBusinessResults(result.Messages, result.IsSuccessful);
         

@@ -42,9 +42,13 @@ public class CustomerService : IBusinessService<Customer>
         var createdEntities = new List<Customer>();
         foreach (var customer in customers)
         {
-            var validationResult = _customerValidator.Validate(customer);
+            var validationResult = _customerValidator.Validate(
+                customer, 
+                options => options.IncludeRuleSets("Common", "Create"));
+
             if (!validationResult.IsValid)
             {
+                Results.ConvertFromValidation(validationResult.Errors);
                 continue;
             }
             
@@ -67,10 +71,13 @@ public class CustomerService : IBusinessService<Customer>
         
         foreach (var customer in customers)
         {
-            var validationResult = _customerValidator.Validate(customer, options => options.IncludeRuleSets("Update"));
+            var validationResult = _customerValidator.Validate(
+                customer, 
+                options => options.IncludeRuleSets("Common", "Update"));
+
             if (!validationResult.IsValid)
             {
-                
+                Results.ConvertFromValidation(validationResult.Errors);
                 continue;
             }
 
@@ -86,6 +93,41 @@ public class CustomerService : IBusinessService<Customer>
 
         return new BusinessResult<Customer>(updatedEntities, Results.Messages, !Results.IsBroken);
     }
+    
+    public async Task<BusinessResult<Customer>> DeleteCustomers(List<Customer> customers)
+    {
+        List<Customer> removedEntities = new List<Customer>();
+        
+        foreach (var customer in customers)
+        {
+            var searchCustomerResult = _customersRepository.Get(customer.Id);
+            if (searchCustomerResult.Data.Count < 1)
+            {
+                Results.AddBusinessError($"Не найден пользователь с Id = {customer.Id}");
+            }
+
+            var customerForRemove = searchCustomerResult.Data.First();
+            customerForRemove.Inactive = true;
+            
+            var validationResult = _customerValidator.Validate(
+                customerForRemove, 
+                options => options.IncludeRuleSets("Delete"));
+
+            if (!validationResult.IsValid)
+            {
+                Results.ConvertFromValidation(validationResult.Errors);
+                continue;
+            }
+            
+            var result = await _customersRepository.Update(customerForRemove);
+            if (result.IsSuccessful)
+                removedEntities.AddRange(result.Data);
+            
+            Results.Messages.AddRange(result.Messages);
+        }
+
+        return new BusinessResult<Customer>(removedEntities, Results.Messages, !Results.IsBroken);
+    }
 
     private async Task<Address?> GetOrCreateAddress(Address address)
     {
@@ -96,9 +138,10 @@ public class CustomerService : IBusinessService<Customer>
         }
         else
         {
-            var validationResult = _addressValidator.Validate(address, options => options.IncludeRuleSets("Create"));
+            var validationResult = _addressValidator.Validate(address, options => options.IncludeRuleSets("Common", "Create"));
             if (!validationResult.IsValid)
             {
+                Results.ConvertFromValidation(validationResult.Errors);
                 return null;
             }
             result = (await _addressesRepository.Create(address)).Data.First();
