@@ -1,4 +1,4 @@
-﻿namespace LogisticInnostage.Application;
+﻿namespace Logistic.Application;
 
 using Mapster;
 

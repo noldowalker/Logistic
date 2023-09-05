@@ -6,14 +6,14 @@ using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Logistic.Infrastructure.Extensions;
 using Logistic.Infrastructure.WorkResult;
+using Logistic.Domain.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Logistic.Infrastructure.Repositories;
 
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
-    protected readonly List<IInterceptable<T>> _interceptors;
-    protected List<object> _interceptors2;
+    protected List<object> _interceptors;
     
     protected DataBaseContext _db;
     public IActionMessageContainer Results { get; set; }
@@ -25,9 +25,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         IServiceProvider serviceProvider)
     {
         _db = db;
-        _interceptors = interceptors.ToList();
-        _interceptors.SortByOrder();
-        GetAllInterceptors(serviceProvider);
+        GetAllInterceptors(serviceProvider);//ToDo: доделать здесь подтягивание ВСЕХ интерсепторов
         Results = results;
     }
 
@@ -143,8 +141,6 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     }
     
     protected bool disposed = false;
-
-    
     
     #region Get Virtual Methods
 
@@ -173,14 +169,8 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool AfterGet(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.AfterRead(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("AfterRead", entity);
+        return result;
     }
     
     #endregion
@@ -189,26 +179,14 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeCreate(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.BeforeCreate(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("BeforeCreate", entity);
+        return result;
     }
     
     protected virtual bool AfterCreate(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.AfterCreate(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("AfterCreate", entity);
+        return result;
     }
 
     protected virtual bool CreateAction(T item)
@@ -223,32 +201,18 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeUpdate(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.BeforeUpdate(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("BeforeUpdate", entity);
+        return result;
     }
     
     protected virtual bool AfterUpdate(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.AfterUpdate(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("AfterUpdate", entity);
+        return result;
     }
 
     protected virtual bool UpdateAction(T item)
     {
-        /*var type = typeof(IBaseModelsRepository<>).MakeGenericType(typeof(Address));
-        var addressRepo = _serviceProvider.GetRequiredService(type) as IBaseModelsRepository<Address>;*/
         _db.Entry(item).State = EntityState.Modified;
         return true;
     }
@@ -259,26 +223,14 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeDelete(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.BeforeDelete(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("BeforeDelete", entity);
+        return result;
     }
     
     protected virtual bool AfterDelete(T entity)
     {
-        foreach (var interceptor in _interceptors)
-        {
-            var result = interceptor.AfterDelete(entity);
-            if (!result)
-                return false;
-        }
-
-        return true;
+        var result = CallInterceptorFunc("AfterDelete", entity);
+        return result;
     }
 
     protected virtual bool DeleteAction(T entity)
@@ -291,8 +243,8 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     private void GetAllInterceptors(IServiceProvider provider)
     {
-        _interceptors2 = new List<object>();
-        var types = GetInheritanceChain();
+        _interceptors = new List<object>();
+        var types = typeof(T).GetInheritanceChainFromBaseModel();
         foreach (var type in types)
         {
             var interceptorType = typeof(IInterceptable<>).MakeGenericType(type);
@@ -300,37 +252,38 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
             if (!propertyRepo.Any())
                 continue;
             
-            _interceptors2.AddRange(propertyRepo);
+            _interceptors.AddRange(propertyRepo);
         }
         
-        if (_interceptors2.Any())
-            _interceptors2.SortByOrder();
-    } 
-    
-    private List<Type> GetInheritanceChain()
+        if (_interceptors.Any())
+            _interceptors.SortByOrder();
+    }
+
+    private bool CallInterceptorFunc(string methodName, T entity)
     {
-        Type derivedType = typeof(T);
-        Type baseType = typeof(BaseModel);
-        List<Type> chain = new List<Type>();
+        var result = false;
 
-        Type currentType = derivedType;
-
-        while (currentType != null && currentType != baseType)
+        foreach (var interceptor in _interceptors)
         {
-            chain.Add(currentType);
-            currentType = currentType.BaseType;
+            var interceptorTypes = interceptor.GetType().GetInterfaces().Where(i =>
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IInterceptable<>));
+            
+            foreach (var implementedInterface in interceptorTypes)
+            {
+                var genericType = implementedInterface.GetGenericArguments()[0];
+                if (!typeof(BaseModel).IsAssignableFrom(genericType)) 
+                    continue;
+                
+                var method = implementedInterface.GetMethod(methodName);
+                if (method == null)
+                    continue;
+                
+                result = (bool)method.Invoke(interceptor, new[] { entity });
+                if (result == false)
+                    return result;
+            }
         }
-
-        if (currentType == baseType)
-        {
-            chain.Add(currentType);
-            chain.Reverse();
-        }
-        else
-        {
-            chain.Clear();
-        }
-
-        return chain;
+        
+        return result;
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using Logistic;
 using Logistic.Filters;
-using LogisticInnostage.Application;
-using LogisticInnostage.Infrastructure;
+using Logistic.Application;
+using Logistic.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Postgres");

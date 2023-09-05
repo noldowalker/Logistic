@@ -1,6 +1,8 @@
-﻿namespace LogisticInnostage.Domain.Entities;
+﻿using Logistic.Domain.Constants;
 
-using LogisticInnostage.Domain.Constants;
+namespace Logistic.Domain.Entities;
+
+using Logistic.Domain.Constants;
 
 public class Product
 {

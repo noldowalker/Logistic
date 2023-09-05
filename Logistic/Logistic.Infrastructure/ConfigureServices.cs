@@ -8,7 +8,7 @@ using Logistic.Infrastructure.Repositories;
 using Logistic.Infrastructure.WorkResult;
 using Microsoft.EntityFrameworkCore;
 
-namespace LogisticInnostage.Infrastructure;
+namespace Logistic.Infrastructure;
 
 using Microsoft.Extensions.DependencyInjection;
 

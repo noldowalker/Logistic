@@ -1,4 +1,4 @@
-﻿namespace LogisticInnostage.Domain.Constants;
+﻿namespace Logistic.Domain.Constants;
 
 public enum Country
 {

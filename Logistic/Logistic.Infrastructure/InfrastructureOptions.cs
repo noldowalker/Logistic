@@ -1,4 +1,4 @@
-﻿namespace LogisticInnostage.Infrastructure;
+﻿namespace Logistic.Infrastructure;
 
 public class InfrastructureOptions
 {
