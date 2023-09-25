@@ -11,9 +11,8 @@ public class CustomersRepository: BaseModelsRepository<Customer>
     private readonly IServiceProvider _serviceProvider;
     public CustomersRepository(
         DataBaseContext db, 
-        IEnumerable<IInterceptable<Customer>> interceptors, 
         IServiceProvider serviceProvider, 
-        IInfrastructureActionMessageContainer results) : base(db, interceptors, results, serviceProvider)
+        IInfrastructureActionMessageContainer results) : base(db, results, serviceProvider)
     {
     }
 

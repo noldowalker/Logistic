@@ -72,15 +72,21 @@ public static class ConfigureServices
         
         foreach (var type in types)
         {
-            AddInterceptorsForType(services, type);
+            AddInterceptorsForType(services, type, typeof(IInterceptAfterRead<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptBeforeCreate<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptAfterCreate<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptBeforeUpdate<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptAfterUpdate<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptBeforeDelete<>));
+            AddInterceptorsForType(services, type, typeof(IInterceptBeforeDelete<>));
         }
     }
     
-    private static void AddInterceptorsForType(IServiceCollection services, Type baseModelType)
+    private static void AddInterceptorsForType(IServiceCollection services, Type baseModelType, Type interceptorType)
     {
         // тут важно искать по конкретному типу, т.е. указать какой именно дженерик нас интересует. Иначе в сборке не найдет.
-        //ToDo: реализовать подтягивание по цепочке типов, а не по конкретному, как в валидаторах.
-        var interfaceType = typeof(IInterceptable<>).MakeGenericType(baseModelType); 
+        //ToDo: реализовать подтягивание по цепочке типов, а не по конкретному, как в валидаторах. ???
+        var interfaceType = interceptorType.MakeGenericType(baseModelType); 
         var interceptorTypes = AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(a => a.GetTypes())

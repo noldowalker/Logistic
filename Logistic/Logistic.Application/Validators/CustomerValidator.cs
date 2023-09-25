@@ -18,12 +18,8 @@ public class CustomerValidator : AbstractValidator<Customer>
             RuleFor(customer => customer.Name)
                 .NotNull()
                 .WithMessage("Имя не указано!")
-                .NotEmpty()
-                .WithMessage("Имя не указано!")
                 .Matches("^[а-яА-Яa-zA-Z\\s]+$")
                 .WithMessage("Имя может включать в себя только кириллические или латинские символы.");
         });
-        
-        
     }
 }

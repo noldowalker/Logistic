@@ -13,19 +13,24 @@ namespace Logistic.Infrastructure.Repositories;
 
 public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseModel
 {
-    protected List<object> _interceptors;
+    protected List<object> _afterReadInterceptors = new List<object>();
+    protected List<object> _beforeCreateInterceptors = new List<object>();
+    protected List<object> _afterCreateInterceptors = new List<object>();
+    protected List<object> _beforeUpdateInterceptors = new List<object>();
+    protected List<object> _afterUpdateInterceptors = new List<object>();
+    protected List<object> _beforeDeleteInterceptors = new List<object>();
+    protected List<object> _afterDeleteInterceptors = new List<object>();
     
     protected DataBaseContext _db;
     public IActionMessageContainer Results { get; set; }
 
     public BaseModelsRepository(
         DataBaseContext db, 
-        IEnumerable<IInterceptable<T>> interceptors, 
         IInfrastructureActionMessageContainer results,  
         IServiceProvider serviceProvider)
     {
         _db = db;
-        GetAllInterceptors(serviceProvider);//ToDo: доделать здесь подтягивание ВСЕХ интерсепторов
+        GetAllInterceptors(serviceProvider);
         Results = results;
     }
 
@@ -62,11 +67,13 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         
         try
         {
-            if (BeforeCreate(entity) && CreateAction(entity) && AfterCreate(entity))
+            if (BeforeCreate(entity) && CreateAction(entity))
             {
                 await SaveAsync();
                 data.Add(entity);
             }
+
+            AfterCreate(entity);
         }
         catch (Exception e)
         {
@@ -83,11 +90,13 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         
         try
         {
-            if (BeforeUpdate(entity) && UpdateAction(entity) && AfterUpdate(entity))
+            if (BeforeUpdate(entity) && UpdateAction(entity))
             {
                 await SaveAsync();
                 data.Add(entity);
             }
+
+            AfterUpdate(entity);
         }
         catch (Exception e)
         {
@@ -107,11 +116,13 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
         {
             var entity = await _db.Set<T>().FindAsync(id);
             
-            if (entity != null && BeforeDelete(entity) && DeleteAction(entity) && AfterDelete(entity))
+            if (entity != null && BeforeDelete(entity) && DeleteAction(entity))
             {
                 await SaveAsync();
                 data.Add(entity);
             }
+
+            AfterDelete(entity);
         }
         catch (Exception e)
         {
@@ -169,7 +180,12 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool AfterGet(T entity)
     {
-        var result = CallInterceptorFunc("AfterRead", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _afterReadInterceptors, 
+            typeof(IInterceptAfterRead<>), 
+            nameof(IInterceptAfterRead<T>.AfterRead));
+        
         return result;
     }
     
@@ -179,14 +195,25 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeCreate(T entity)
     {
-        var result = CallInterceptorFunc("BeforeCreate", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _beforeCreateInterceptors, 
+            typeof(IInterceptBeforeCreate<>), 
+            nameof(IInterceptBeforeCreate<T>.BeforeCreate));
+        
         return result;
     }
     
     protected virtual bool AfterCreate(T entity)
     {
-        var result = CallInterceptorFunc("AfterCreate", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _afterCreateInterceptors, 
+            typeof(IInterceptAfterCreate<>), 
+            nameof(IInterceptAfterCreate<T>.AfterCreate));
+        
         return result;
+        
     }
 
     protected virtual bool CreateAction(T item)
@@ -201,13 +228,22 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeUpdate(T entity)
     {
-        var result = CallInterceptorFunc("BeforeUpdate", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _beforeUpdateInterceptors, 
+            typeof(IInterceptBeforeUpdate<>), 
+            nameof(IInterceptBeforeUpdate<T>.BeforeUpdate));
+        
         return result;
     }
     
     protected virtual bool AfterUpdate(T entity)
     {
-        var result = CallInterceptorFunc("AfterUpdate", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _afterUpdateInterceptors, 
+            typeof(IInterceptAfterUpdate<>), 
+            nameof(IInterceptAfterUpdate<T>.AfterUpdate));
         return result;
     }
 
@@ -223,13 +259,23 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     protected virtual bool BeforeDelete(T entity)
     {
-        var result = CallInterceptorFunc("BeforeDelete", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _beforeDeleteInterceptors, 
+            typeof(IInterceptBeforeDelete<>), 
+            nameof(IInterceptBeforeDelete<T>.BeforeDelete));
+        
         return result;
     }
     
     protected virtual bool AfterDelete(T entity)
     {
-        var result = CallInterceptorFunc("AfterDelete", entity);
+        var result = CallInterceptorFunc(
+            entity, 
+            _afterDeleteInterceptors, 
+            typeof(IInterceptAfterDelete<>), 
+            nameof(IInterceptAfterDelete<T>.AfterDelete));
+        
         return result;
     }
 
@@ -243,30 +289,75 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
 
     private void GetAllInterceptors(IServiceProvider provider)
     {
-        _interceptors = new List<object>();
-        var types = typeof(T).GetInheritanceChainFromBaseModel();
-        foreach (var type in types)
+        var typesInheritanceChain = typeof(T).GetInheritanceChainFromBaseModel();
+
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptAfterRead<>),
+            _afterReadInterceptors);
+
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptBeforeCreate<>),
+            _beforeCreateInterceptors);
+
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptAfterCreate<>),
+            _afterCreateInterceptors);
+        
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptBeforeUpdate<>),
+            _beforeUpdateInterceptors);
+        
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptAfterUpdate<>),
+            _afterUpdateInterceptors);
+        
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptBeforeDelete<>),
+            _beforeDeleteInterceptors);
+        
+        GetInterceptorsOfType(
+            provider, 
+            typesInheritanceChain, 
+            typeof(IInterceptAfterDelete<>),
+            _afterDeleteInterceptors);
+        
+    }
+
+    private void GetInterceptorsOfType(IServiceProvider provider, List<Type> typesInheritanceChain, Type interceptorInterfaceType, List<object> interceptorsContainer)
+    {
+        foreach (var type in typesInheritanceChain)
         {
-            var interceptorType = typeof(IInterceptable<>).MakeGenericType(type);
+            var interceptorType = interceptorInterfaceType.MakeGenericType(type);
             var propertyRepo = provider.GetServices(interceptorType);
             if (!propertyRepo.Any())
                 continue;
             
-            _interceptors.AddRange(propertyRepo);
+            interceptorsContainer.AddRange(propertyRepo);
         }
         
-        if (_interceptors.Any())
-            _interceptors.SortByOrder();
+        if (interceptorsContainer.Any())
+            interceptorsContainer.SortByOrder();
     }
-
-    private bool CallInterceptorFunc(string methodName, T entity)
+    private bool CallInterceptorFunc(T entity, List<object> interceptorsCollection, Type interceptorType, string methodName)
     {
         var result = false;
 
-        foreach (var interceptor in _interceptors)
+        foreach (var interceptor in interceptorsCollection)
         {
             var interceptorTypes = interceptor.GetType().GetInterfaces().Where(i =>
-                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IInterceptable<>));
+                i.IsGenericType && i.GetGenericTypeDefinition() == interceptorType);
             
             foreach (var implementedInterface in interceptorTypes)
             {

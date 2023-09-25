@@ -7,60 +7,30 @@ using Logistic.Infrastructure.Interfaces;
 namespace Logistic.Infrastructure.Interceptors;
 
 [Order(2)]
-public class CustomerAdditionalInterceptor : IInterceptable<Customer>
+public class CustomerAdditionalInterceptor : IInterceptBeforeCreate<Customer>, IInterceptBeforeUpdate<Customer>
 {
     public CustomerAdditionalInterceptor(IInfrastructureActionMessageContainer resultses)
     {
-        Resultses = resultses;
+        Results = resultses;
     }
 
-    public IInfrastructureActionMessageContainer Resultses { get; }
-
-    public bool BeforeRead(Customer entity)
-    {
-        return true;
-    }
-
-    public bool AfterRead(Customer entity)
-    {
-        return true;
-    }
+    public IInfrastructureActionMessageContainer Results { get; }
 
     public bool BeforeCreate(Customer entity)
     {
         if (entity.Name.ToLower() != "петр")
             return true;
 
-        Resultses.AddError(new InfrastructureError("Петям тут не место!"));
+        Results.AddError(new InfrastructureError("Петям тут не место!"));
         return false;
     }
-
-    public bool AfterCreate(Customer entity)
-    {
-        return true;
-    }
-
+    
     public bool BeforeUpdate(Customer entity)
     {
         if (entity.Name.ToLower() != "петр")
             return true;
 
-        Resultses.AddError(new InfrastructureError("Петям тут не место!"));
+        Results.AddError(new InfrastructureError("Петям тут не место!"));
         return false;
-    }
-
-    public bool AfterUpdate(Customer entity)
-    {
-        return true;
-    }
-
-    public bool BeforeDelete(Customer entity)
-    {
-        return true;
-    }
-
-    public bool AfterDelete(Customer entity)
-    {
-        return true;
     }
 }
