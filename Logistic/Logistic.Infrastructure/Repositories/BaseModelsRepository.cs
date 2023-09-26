@@ -352,7 +352,7 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     }
     private bool CallInterceptorFunc(T entity, List<object> interceptorsCollection, Type interceptorType, string methodName)
     {
-        var result = false;
+        var result = true;
 
         foreach (var interceptor in interceptorsCollection)
         {

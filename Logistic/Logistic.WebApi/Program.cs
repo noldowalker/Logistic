@@ -3,6 +3,7 @@ using Logistic;
 using Logistic.Filters;
 using Logistic.Application;
 using Logistic.Infrastructure;
+using Logistic.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Postgres");
@@ -25,8 +26,8 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddApplication();
 
-
 var app = builder.Build();
+app.UseMiddleware<TransactionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
