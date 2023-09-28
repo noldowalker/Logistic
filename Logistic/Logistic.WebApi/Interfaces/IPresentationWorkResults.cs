@@ -8,5 +8,5 @@ namespace Logistic.Interfaces;
 public interface IPresentationActionMessageContainer: IActionMessageContainer
 {
     public int GetStatusCode();
-    public void AddBusinessResults(List<ActionMessage> messages, bool isSuccessful);
+    public void AddBusinessResults(List<ResultMessage> messages, bool isSuccessful);
 }

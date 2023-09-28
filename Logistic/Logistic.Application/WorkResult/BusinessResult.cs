@@ -6,10 +6,10 @@ namespace Logistic.Application.WorkResult;
 public class BusinessResult<T> : IActionResult<T> where T : BaseModel
 {
     public List<T> Data { get; init; }
-    public List<ActionMessage> Messages { get; init; }
+    public List<ResultMessage> Messages { get; init; }
     public bool IsSuccessful { get; init; }
     
-    public BusinessResult(List<T> data, List<ActionMessage> messages, bool isSuccessful)
+    public BusinessResult(List<T> data, List<ResultMessage> messages, bool isSuccessful)
     {
         Data = data;
         Messages = messages;

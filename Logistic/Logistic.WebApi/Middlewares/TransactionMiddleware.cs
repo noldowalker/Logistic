@@ -9,7 +9,7 @@ public class TransactionMiddleware
     private readonly List<string> _nonTransactionalActionsNames = new List<string>()
     {
         "get",
-        "list", 
+        //"list", 
     };
 
     public TransactionMiddleware(RequestDelegate next)

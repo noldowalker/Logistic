@@ -2,7 +2,7 @@
 
 public interface IActionMessageContainer
 {
-    public List<ActionMessage> Messages { get; }
+    public List<ResultMessage> Messages { get; }
     public bool IsBroken { get; }
 
     public void AddNotification(string text);

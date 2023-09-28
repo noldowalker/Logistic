@@ -6,16 +6,13 @@ namespace Logistic.WorkResult;
 
 public class PresentationMessagesContainer : IPresentationActionMessageContainer
 {
-    public List<ActionMessage> Messages { get; } = new List<ActionMessage>();
+    public List<ResultMessage> Messages { get; } = new List<ResultMessage>();
     public bool IsBroken { get { return _isBroken; } }
     private bool _isBroken = false;
 
     public void AddNotification(string text)
     {
-        var message = new PresentationActionMessage()
-        {
-            Text = text
-        };
+        var message = new PresentationResultMessage(text);
         
         Messages.Add(message);
     }
@@ -25,11 +22,7 @@ public class PresentationMessagesContainer : IPresentationActionMessageContainer
         if (string.IsNullOrEmpty(errorUserText))
             errorUserText = exception.Message;
         
-        var message = new PresentationActionMessage()
-        {
-            Text = errorUserText,
-            Error = exception
-        };
+        var message = new PresentationResultMessage(errorUserText, exception);
         
         Messages.Add(message);
         _isBroken = true;
@@ -46,7 +39,7 @@ public class PresentationMessagesContainer : IPresentationActionMessageContainer
         return 500;
     }
 
-    public void AddBusinessResults(List<ActionMessage> messages, bool isSuccessful)
+    public void AddBusinessResults(List<ResultMessage> messages, bool isSuccessful)
     {
         Messages.AddRange(messages);
         _isBroken = !isSuccessful;

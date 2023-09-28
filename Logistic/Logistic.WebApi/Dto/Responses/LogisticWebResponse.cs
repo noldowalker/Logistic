@@ -11,7 +11,7 @@ namespace Logistic.Dto.Responses;
 public class LogisticWebResponse : ActionResult
 {
     public List<object> Data { get; set; }
-    public List<ActionMessage> Messages { get; set; } = new List<ActionMessage>();
+    public List<ResultMessage> Messages { get; set; } = new List<ResultMessage>();
     public List<string> Flags { get; } = new List<string>();
     private readonly int _statusCode;
 

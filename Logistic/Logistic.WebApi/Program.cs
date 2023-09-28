@@ -28,6 +28,7 @@ builder.Services.AddApplication();
 
 var app = builder.Build();
 app.UseMiddleware<TransactionMiddleware>();
+app.UseMiddleware<UnexpectedErrorsMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
