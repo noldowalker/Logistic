@@ -14,7 +14,10 @@ public class UnexpectedErrorsMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, IPresentationActionMessageContainer container)
+    // ToDo: попробовать прокинуть все контейнеры и из них затить все месаджи.
+    public async Task InvokeAsync(
+        HttpContext context, 
+        IPresentationActionMessageContainer container)
     {
         try
         {

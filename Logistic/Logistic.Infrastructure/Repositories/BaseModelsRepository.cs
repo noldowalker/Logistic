@@ -1,7 +1,6 @@
 using Domain.Interfaces;
 using Domain.Models;
 using Domain.WorkResults;
-using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Logistic.Infrastructure.Extensions;
@@ -65,20 +64,13 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     {
         var data = new List<T>();
         
-        try
+        if (BeforeCreate(entity) && CreateAction(entity))
         {
-            if (BeforeCreate(entity) && CreateAction(entity))
-            {
-                await SaveAsync();
-                data.Add(entity);
-            }
+            await SaveAsync();
+            data.Add(entity);
+        }
 
-            AfterCreate(entity);
-        }
-        catch (Exception e)
-        {
-            Results.AddError(new InfrastructureError($"При попытке создания сущности {typeof(T)} возникла ошибка: {e.Message}"));
-        }
+        AfterCreate(entity);
 
         //ToDo: подумать над енам с уровнями Result.AddNotification($"Запись успешно {typeof(T)} создана с Id = {entity.Id}!");
         return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
@@ -88,21 +80,13 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     {
         var data = new List<T>();
         
-        try
+        if (BeforeUpdate(entity) && UpdateAction(entity))
         {
-            if (BeforeUpdate(entity) && UpdateAction(entity))
-            {
-                await SaveAsync();
-                data.Add(entity);
-            }
+            await SaveAsync();
+            data.Add(entity);
+        }
 
-            AfterUpdate(entity);
-        }
-        catch (Exception e)
-        {
-            Results
-                .AddError(new InfrastructureError($"При попытке обновления сущности {typeof(T)} с Id = {entity.Id} возникла ошибка: {e.Message}"));
-        }
+        AfterUpdate(entity);
 
         // ToDo: подумать над енам с уровнями  Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
         return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);
@@ -112,23 +96,15 @@ public class BaseModelsRepository<T> : IBaseModelsRepository<T> where T : BaseMo
     {
         var data = new List<T>();
         
-        try
+        var entity = await _db.Set<T>().FindAsync(id);
+        
+        if (entity != null && BeforeDelete(entity) && DeleteAction(entity))
         {
-            var entity = await _db.Set<T>().FindAsync(id);
-            
-            if (entity != null && BeforeDelete(entity) && DeleteAction(entity))
-            {
-                await SaveAsync();
-                data.Add(entity);
-            }
+            await SaveAsync();
+            data.Add(entity);
+        }
 
-            AfterDelete(entity);
-        }
-        catch (Exception e)
-        {
-            Results
-                .AddError(new InfrastructureError($"При попытке удаления сущности {typeof(T)} с Id = {id} возникла ошибка: {e.Message}"));
-        }
+        AfterDelete(entity);
 
         // ToDo: подумать над енам с уровнями  Result.AddDebugMessage($"Запись {typeof(T)} с Id = {entity.Id} успешно обновлена!");
         return new InfrastructureResult<T>(data.ToList(), Results.Messages, !Results.IsBroken);

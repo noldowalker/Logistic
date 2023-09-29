@@ -1,6 +1,4 @@
 ﻿using Domain.Models;
-using Domain.WorkResults;
-using Logistic.Infrastructure.Exceptions;
 using Logistic.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +14,7 @@ public class CustomersRepository: BaseModelsRepository<Customer>
     {
     }
 
-    protected override IEnumerable<Customer> GetListAction()
+    protected override List<Customer> GetListAction()
     {
         var result = _db
             .Set<Customer>()
